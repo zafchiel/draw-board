@@ -26,7 +26,6 @@ export function ThemeProvider({ children, defaultTheme = "system", localStorageK
     );
 
     useEffect(() => {
-        console.log("provider use effect", theme)
         const documentElement = window.document.documentElement;
 
         documentElement.classList.remove("light", "dark");
@@ -46,7 +45,6 @@ export function ThemeProvider({ children, defaultTheme = "system", localStorageK
     const value = {
         theme,
         setTheme: (theme: Theme) => {
-            console.log("setting theme", theme)
             localStorage.setItem(localStorageKey, theme);
             setTheme(theme);
         }
