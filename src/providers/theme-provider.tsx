@@ -1,4 +1,4 @@
-import { createContext, useContext, useEffect, useState } from "react";
+import { createContext, useEffect, useState } from "react";
 
 type Theme = "light" | "dark" | "system";
 
@@ -15,10 +15,10 @@ type ThemeProviderState = {
 
 const initState: ThemeProviderState = {
     theme: "system",
-    setTheme: () => null,
+    setTheme: () => {},
 }
 
-const ThemeProviderContext = createContext<ThemeProviderState>(initState);
+export const ThemeProviderContext = createContext<ThemeProviderState>(initState);
 
 export function ThemeProvider({ children, defaultTheme = "system", localStorageKey = "draw-board-ui-theme", ...props }: ThemeProviderProps) {
     const [theme, setTheme] = useState<Theme>(
@@ -26,6 +26,7 @@ export function ThemeProvider({ children, defaultTheme = "system", localStorageK
     );
 
     useEffect(() => {
+        console.log("provider use effect", theme)
         const documentElement = window.document.documentElement;
 
         documentElement.classList.remove("light", "dark");
@@ -42,24 +43,16 @@ export function ThemeProvider({ children, defaultTheme = "system", localStorageK
         documentElement.classList.add(theme);
     }, [theme])
 
-    return <ThemeProviderContext.Provider {...props} value={{
+    const value = {
         theme,
         setTheme: (theme: Theme) => {
+            console.log("setting theme", theme)
             localStorage.setItem(localStorageKey, theme);
             setTheme(theme);
         }
-    }}>
-        {children}
-    </ThemeProviderContext.Provider>
-}
-
-
-export function useTheme() {
-    const themeContext = useContext(ThemeProviderContext);
-
-    if(!themeContext) {
-        throw new Error("useTheme must be used within a ThemeProvider");
     }
 
-    return themeContext;
+    return <ThemeProviderContext.Provider {...props} value={value} >
+        {children}
+    </ThemeProviderContext.Provider>
 }
