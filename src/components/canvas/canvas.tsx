@@ -1,9 +1,10 @@
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import rough from "roughjs";
 
 const gen = rough.generator();
 
 export function Canvas() {
+  const [canvasState, setCanvasState] = useState();
   const canvasRef = useRef<HTMLCanvasElement>(null);
 
   useEffect(() => {
