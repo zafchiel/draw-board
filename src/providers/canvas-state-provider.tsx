@@ -14,15 +14,29 @@ const initCanvasState: CanvasState = {
     },
     currentStrokeColor: {
         h: 0, s: 0, l: 100, a: 1
-    }
+    },
+    mouseX: 0,
+    mouseY: 0,
 }
 
-export const CanvasStateContext = createContext<CanvasState>(initCanvasState)
+const initContextValue = {
+    canvasState: initCanvasState,
+    updateState: (newState: CanvasState) => {}
+}
+
+export const CanvasStateContext = createContext(initContextValue)
 
 export function CanvasStateProvider({ children }: CanvasStateProviderProps) {
     const [canvasState, setCanvasState] = useLocalStorage<CanvasState>("canvas-state", initCanvasState)
 
-    const contextValue = canvasState
+    const updateState = (newState: CanvasState) => {
+        setCanvasState(newState)
+    }
+
+    const contextValue = {
+        canvasState,
+        updateState
+    }
     
     return (
         <CanvasStateContext.Provider value={contextValue}>

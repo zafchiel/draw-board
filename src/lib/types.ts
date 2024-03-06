@@ -78,4 +78,6 @@ export enum LayerType {
     currentStrokeColor: Color;
     currentFillColor: Color;
     currentLayer: Layer | null;
+    mouseX: number;
+    mouseY: number;
   }
