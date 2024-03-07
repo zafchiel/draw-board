@@ -7,7 +7,7 @@ type CanvasStateProviderProps = {
 }
 
 const initCanvasState: CanvasState = {
-    mode: CanvasMode.Selecting,
+    mode: CanvasMode.None,
     currentLayer: null,
     currentFillColor: {
          h: 0, s: 0, l: 0, a: 0

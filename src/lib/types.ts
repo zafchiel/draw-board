@@ -30,6 +30,7 @@ export enum CanvasMode {
   Resizing = "resizing",
   Pencil = "pencil",
   Moving = "moving",
+  None = "none",
 }
 
 export type CanvasState = {

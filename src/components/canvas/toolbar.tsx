@@ -24,20 +24,20 @@ export function Toolbar() {
       }}>
         <MousePointer2 size={18} />
       </ToolbarButton>
-      <ToolbarButton name="Rectangle" selected={canvasState.mode === CanvasMode.Inserting && canvasState.selectedLayerType === LayerType.Rectangle} onClick={() => {
+      <ToolbarButton name="Rectangle" selected={canvasState.mode === CanvasMode.None && canvasState.selectedLayerType === LayerType.Rectangle} onClick={() => {
         updateState({
           ...canvasState,
-          mode: CanvasMode.Inserting,
+          mode: CanvasMode.None,
           selectedLayerType: LayerType.Rectangle
 
         });
       }}>
         <Square size={18} />
       </ToolbarButton>
-      <ToolbarButton name="Ellipse" selected={canvasState.mode === CanvasMode.Inserting && canvasState.selectedLayerType === LayerType.Ellipse}  onClick={() => {
+      <ToolbarButton name="Ellipse" selected={canvasState.mode === CanvasMode.None && canvasState.selectedLayerType === LayerType.Ellipse}  onClick={() => {
         updateState({
           ...canvasState,
-          mode: CanvasMode.Inserting,
+          mode: CanvasMode.None,
           selectedLayerType: LayerType.Ellipse
 
         });
