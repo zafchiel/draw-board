@@ -10,14 +10,15 @@ type ToolbarButtonProps = {
   children: React.ReactNode;
   name: string;
   onClick: () => void;
+  selected?: boolean;
 };
 
-export function ToolbarButton({ name, onClick, children }: ToolbarButtonProps) {
+export function ToolbarButton({ name, onClick, children, selected }: ToolbarButtonProps) {
   return (
     <TooltipProvider>
       <Tooltip>
         <TooltipTrigger asChild>
-          <Button variant="ghost" size="icon" onClick={onClick}>
+          <Button variant={selected ? "default" : "ghost"} size="icon" onClick={onClick} >
             {children}
           </Button>
         </TooltipTrigger>

@@ -1,83 +1,45 @@
 export type Color = {
-    h: number;
-    s: number;
-    l: number;
-    a: number;
-}
+  h: number;
+  s: number;
+  l: number;
+  a: number;
+};
 
 export enum LayerType {
-    Rectangle = "rectangle",
-    Ellipse = "ellipse",
-    Path = "path",
-    Text = "text",
-  }
-  
-  export type RectangleLayer = {
-    type: LayerType.Rectangle;
-    x: number;
-    y: number;
-    width: number;
-    height: number;
-    fill: Color;
-    stroke: Color;
-    value?: string;
-  };
-  
-  export type EllipseLayer = {
-    type: LayerType.Ellipse;
-    x: number;
-    y: number;
-    width: number;
-    height: number;
-    fill: Color;
-    stroke: Color;
-    value?: string;
-  };
-  
-  export type PathLayer = {
-    type: LayerType.Path;
-    x: number;
-    y: number;
-    width: number;
-    height: number;
-    stroke: Color;
-    points: number[][];
-    value?: string;
-  };
-  
-  export type TextLayer = {
-    type: LayerType.Text;
-    x: number;
-    y: number;
-    width: number;
-    height: number;
-    fill: Color;
-    value?: string;
-  };
+  Rectangle = "rectangle",
+  Ellipse = "ellipse",
+  Path = "path",
+  Text = "text",
+}
 
-  export type Layer =
-  | RectangleLayer
-  | EllipseLayer
-  | PathLayer
-  | TextLayer;
+export type Layer = {
+  type: LayerType;
+  id: string;
+  x: number;
+  y: number;
+  width: number;
+  height: number;
+  fill: Color;
+  stroke: Color;
+};
 
-  export enum CanvasMode {
-    None = 'none',
-    Pressing = 'pressing',
-    SelectionNet = 'selectionNet',
-    Translating = 'translating',
-    Inserting = 'inserting',
-    Resizing = 'resizing',
-    Pencil = 'pencil',
-  }
+export enum CanvasMode {
+  Selecting = "selecting",
+  SelectionNet = "selectionNet",
+  Inserting = "inserting",
+  Resizing = "resizing",
+  Pencil = "pencil",
+  Moving = "moving",
+}
 
-  export type LayersArray = Layer[];
-
-  export type CanvasState = {
-    mode: CanvasMode;
-    currentStrokeColor: Color;
-    currentFillColor: Color;
-    currentLayer: Layer | null;
-    mouseX: number;
-    mouseY: number;
-  }
+export type CanvasState = {
+  mode: CanvasMode;
+  currentLayer: Layer | null;
+  selectedLayerType: LayerType | null;
+  currentStrokeColor: Color;
+  currentFillColor: Color;
+  currentX: number;
+  currentY: number;
+  originX: number;
+  originY: number;
+};

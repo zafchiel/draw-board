@@ -1,4 +1,4 @@
-import { createContext, useState, useEffect } from "react";
+import { createContext } from "react";
 import { CanvasState, CanvasMode } from "@/lib/types";
 import { useLocalStorage } from "@/lib/hooks/use-local-storage";
 
@@ -7,7 +7,7 @@ type CanvasStateProviderProps = {
 }
 
 const initCanvasState: CanvasState = {
-    mode: CanvasMode.None,
+    mode: CanvasMode.Selecting,
     currentLayer: null,
     currentFillColor: {
          h: 0, s: 0, l: 0, a: 0
@@ -15,8 +15,11 @@ const initCanvasState: CanvasState = {
     currentStrokeColor: {
         h: 0, s: 0, l: 100, a: 1
     },
-    mouseX: 0,
-    mouseY: 0,
+    currentX: 0,
+    currentY: 0,
+    originX: 0,
+    originY: 0,
+    selectedLayerType: null
 }
 
 const initContextValue = {
@@ -26,7 +29,7 @@ const initContextValue = {
 
 export const CanvasStateContext = createContext(initContextValue)
 
-export function CanvasStateProvider({ children }: CanvasStateProviderProps) {
+export function CanvasStateContextProvider({ children }: CanvasStateProviderProps) {
     const [canvasState, setCanvasState] = useLocalStorage<CanvasState>("canvas-state", initCanvasState)
 
     const updateState = (newState: CanvasState) => {
