@@ -1,9 +1,16 @@
-import { createContext } from "react";
-import { CanvasState, CanvasMode } from "@/lib/types";
+import { createContext, ReactNode, Dispatch, SetStateAction } from "react";
+import { CanvasState, CanvasMode, Layer } from "@/lib/types";
 import { useLocalStorage } from "@/lib/hooks/use-local-storage";
 
 type CanvasStateProviderProps = {
-    children: React.ReactNode;
+    children: ReactNode;
+}
+
+type ContextValue = {
+    canvasState: CanvasState;
+    layers: Layer[];
+    setCanvasState: Dispatch<SetStateAction<CanvasState>>;
+    setLayers: Dispatch<SetStateAction<Layer[]>>;
 }
 
 const initCanvasState: CanvasState = {
@@ -22,23 +29,24 @@ const initCanvasState: CanvasState = {
     selectedLayerType: null
 }
 
-const initContextValue = {
+const initContextValue: ContextValue = {
     canvasState: initCanvasState,
-    updateState: (newState: CanvasState) => {}
+    layers: [],
+    setCanvasState: () => {},
+    setLayers: () => {},
 }
 
-export const CanvasStateContext = createContext(initContextValue)
+export const CanvasStateContext = createContext<ContextValue>(initContextValue)
 
 export function CanvasStateContextProvider({ children }: CanvasStateProviderProps) {
     const [canvasState, setCanvasState] = useLocalStorage<CanvasState>("canvas-state", initCanvasState)
-
-    const updateState = (newState: CanvasState) => {
-        setCanvasState(newState)
-    }
+    const [layers, setLayers] = useLocalStorage<Layer[]>("layers", [])
 
     const contextValue = {
         canvasState,
-        updateState
+        layers,
+        setCanvasState,
+        setLayers
     }
     
     return (

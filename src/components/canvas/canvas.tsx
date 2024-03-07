@@ -1,3 +1,4 @@
+import { draw } from "@/lib/drawings";
 import { CanvasMode, LayerType } from "@/lib/types";
 import { CanvasStateContext } from "@/providers/canvas-state-provider";
 import { useContext, useEffect, useRef } from "react";
@@ -6,7 +7,7 @@ import rough from "roughjs";
 const gen = rough.generator();
 
 export function Canvas() {
-  const { canvasState, updateState } = useContext(CanvasStateContext);
+  const { canvasState, setCanvasState } = useContext(CanvasStateContext);
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const tempCanvasRef = useRef<HTMLCanvasElement>(null);
 
@@ -45,8 +46,7 @@ export function Canvas() {
     const startingY = event.pageY;
 
     if (canvasState.selectedLayerType === "rectangle") {
-      console.log("Inserting rectangle");
-      updateState({
+      setCanvasState({
         ...canvasState,
         mode: CanvasMode.Inserting,
         originX: startingX,
@@ -69,16 +69,16 @@ export function Canvas() {
         const width = event.pageX - canvasState.originX;
         const height = event.pageY - canvasState.originY;
 
-        const rc = rough.canvas(tempCanvas);
-        const rectangle = gen.rectangle(
+        draw(
           canvasState.originX,
           canvasState.originY,
           width,
           height,
-          { stroke: "red", fill: "rgba(25, 255, 255, 1)" }
-        );
-
-        rc.draw(rectangle);
+          "black",
+          "transparent",
+          tempCanvas,
+          LayerType.Rectangle
+        )
       }
     }
   };
@@ -97,7 +97,8 @@ export function Canvas() {
 
     // Clear the temporary canvas
     tempCtx.clearRect(0, 0, tempCanvas.width, tempCanvas.height);
-    updateState({
+
+    setCanvasState({
       ...canvasState,
       mode: CanvasMode.None,
     });
