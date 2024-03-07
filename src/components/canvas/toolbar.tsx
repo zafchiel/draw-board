@@ -24,7 +24,7 @@ export function Toolbar() {
       }}>
         <MousePointer2 size={18} />
       </ToolbarButton>
-      <ToolbarButton name="Rectangle" selected={canvasState.mode === CanvasMode.None && canvasState.selectedLayerType === LayerType.Rectangle} onClick={() => {
+      <ToolbarButton name="Rectangle" selected={canvasState.selectedLayerType === LayerType.Rectangle} onClick={() => {
         updateState({
           ...canvasState,
           mode: CanvasMode.None,
@@ -34,7 +34,7 @@ export function Toolbar() {
       }}>
         <Square size={18} />
       </ToolbarButton>
-      <ToolbarButton name="Ellipse" selected={canvasState.mode === CanvasMode.None && canvasState.selectedLayerType === LayerType.Ellipse}  onClick={() => {
+      <ToolbarButton name="Ellipse" selected={canvasState.selectedLayerType === LayerType.Ellipse}  onClick={() => {
         updateState({
           ...canvasState,
           mode: CanvasMode.None,
