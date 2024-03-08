@@ -98,16 +98,16 @@ export function Canvas() {
   const onPointerMove = (event: React.MouseEvent) => {
     if (canvasState.mode === CanvasMode.Panning) {
       const moveX = event.pageX - canvasState.originX;
-    const moveY = event.pageY - canvasState.originY;
-    setCanvasState((prevCanvasState) => {
-      return {
-        ...prevCanvasState,
-        cameraX: prevCanvasState.cameraX + moveX,
-        cameraY: prevCanvasState.cameraY + moveY,
-        originX: event.pageX, // Update the origin to the current pointer position
-        originY: event.pageY, // Update the origin to the current pointer position
-      }
-    })
+      const moveY = event.pageY - canvasState.originY;
+      setCanvasState((prevCanvasState) => {
+        return {
+          ...prevCanvasState,
+          cameraX: prevCanvasState.cameraX + moveX,
+          cameraY: prevCanvasState.cameraY + moveY,
+          originX: event.pageX, // Update the origin to the current pointer position
+          originY: event.pageY, // Update the origin to the current pointer position
+        }
+      })
     }
     
     // Drawing the preview layer
@@ -193,8 +193,8 @@ export function Canvas() {
         type: canvasState.selectedLayerType,
         fill: canvasState.currentFillColor,
         stroke: canvasState.currentStrokeColor,
-        x: canvasState.originX,
-        y: canvasState.originY,
+        x: canvasState.originX - canvasState.cameraX,
+        y: canvasState.originY - canvasState.cameraY,
         width: event.pageX - canvasState.originX,
         height: event.pageY - canvasState.originY,
         isActive: false,
