@@ -11,23 +11,6 @@ export function Canvas() {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const tempCanvasRef = useRef<HTMLCanvasElement>(null);
 
-  // Resize canvas on window resize
-  // useEffect(() => {
-  //   const canvas = canvasRef.current;
-  //   if (!canvas) return;
-
-  //   const resizeCanvas = () => {
-  //     canvas.width = window.innerWidth;
-  //     canvas.height = window.innerHeight;
-  //   }
-
-  //   window.addEventListener("resize", resizeCanvas);
-
-  //   return () => {
-  //     window.removeEventListener("resize", resizeCanvas);
-  //   }
-  // }, []);
-
   useEffect(() => {
     if (!canvasRef.current) return;
     reDraw(layers, canvasRef.current);
@@ -37,15 +20,17 @@ export function Canvas() {
     const canvas = canvasRef.current;
     if (!canvas) return;
 
-    const startingX = event.pageX;
-    const startingY = event.pageY;
+    const currentX = event.pageX;
+    const currentY = event.pageY;
 
-    if (canvasState.selectedLayerType === "rectangle" || canvasState.selectedLayerType === "ellipse") {
+    if (canvasState.mode === CanvasMode.Selecting) {
+      console.log("Selecting mode")
+    } else if (canvasState.selectedLayerType === "rectangle" || canvasState.selectedLayerType === "ellipse") {
       setCanvasState({
         ...canvasState,
         mode: CanvasMode.Inserting,
-        originX: startingX,
-        originY: startingY,
+        originX: currentX,
+        originY: currentY,
       });
     }
   };
@@ -117,20 +102,24 @@ export function Canvas() {
     // Clear the temporary canvas
     tempCtx.clearRect(0, 0, tempCanvas.width, tempCanvas.height);
 
-    setLayers([...layers, {
-      id: (Math.random()).toString(16),
-      type: canvasState.selectedLayerType!,
-      fill: canvasState.currentFillColor,
-      stroke: canvasState.currentStrokeColor,
-      x: canvasState.originX,
-      y: canvasState.originY,
-      width: event.pageX - canvasState.originX,
-      height: event.pageY - canvasState.originY,
-    }])
+    if(canvasState.selectedLayerType !== null) {
+      setLayers([...layers, {
+        id: (Math.random()).toString(16),
+        type: canvasState.selectedLayerType!,
+        fill: canvasState.currentFillColor,
+        stroke: canvasState.currentStrokeColor,
+        x: canvasState.originX,
+        y: canvasState.originY,
+        width: event.pageX - canvasState.originX,
+        height: event.pageY - canvasState.originY,
+      }])
+    }
+
     
     setCanvasState({
       ...canvasState,
-      mode: CanvasMode.None,
+      mode: CanvasMode.Selecting,
+      selectedLayerType: null
     });
   };
 
