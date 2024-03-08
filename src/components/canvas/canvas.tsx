@@ -45,7 +45,7 @@ export function Canvas() {
     const startingX = event.pageX;
     const startingY = event.pageY;
 
-    if (canvasState.selectedLayerType === "rectangle") {
+    if (canvasState.selectedLayerType === "rectangle" || canvasState.selectedLayerType === "ellipse") {
       setCanvasState({
         ...canvasState,
         mode: CanvasMode.Inserting,
@@ -78,6 +78,30 @@ export function Canvas() {
           "transparent",
           tempCanvas,
           LayerType.Rectangle
+        )
+      }
+
+      if (canvasState.selectedLayerType === LayerType.Ellipse) {
+        const tempCanvas = tempCanvasRef.current;
+        if (!tempCanvas) return;
+
+        const ctx = tempCanvas.getContext("2d");
+        if (!ctx) return;
+
+        ctx.clearRect(0, 0, tempCanvas.width, tempCanvas.height); // Clear the temporary canvas
+
+        const width = event.pageX - canvasState.originX;
+        const height = event.pageY - canvasState.originY;
+
+        draw(
+          canvasState.originX,
+          canvasState.originY,
+          width,
+          height,
+          "black",
+          "transparent",
+          tempCanvas,
+          LayerType.Ellipse
         )
       }
     }
