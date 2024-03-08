@@ -1,4 +1,4 @@
-import { draw } from "@/lib/drawings";
+import { draw, reDraw } from "@/lib/drawings";
 import { CanvasMode, LayerType } from "@/lib/types";
 import { CanvasStateContext } from "@/providers/canvas-state-provider";
 import { useContext, useEffect, useRef } from "react";
@@ -7,7 +7,7 @@ import rough from "roughjs";
 const gen = rough.generator();
 
 export function Canvas() {
-  const { canvasState, setCanvasState } = useContext(CanvasStateContext);
+  const { canvasState, setCanvasState, layers, setLayers } = useContext(CanvasStateContext);
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const tempCanvasRef = useRef<HTMLCanvasElement>(null);
 
@@ -29,14 +29,9 @@ export function Canvas() {
   // }, []);
 
   useEffect(() => {
-    const canvas = canvasRef.current;
-    if (!canvas) return;
-
-    const rc = rough.canvas(canvas);
-    const rectangle = gen.rectangle(10, 10, 200, 200, { stroke: "red" });
-
-    rc.draw(rectangle);
-  }, []);
+    if (!canvasRef.current) return;
+    reDraw(layers, canvasRef.current);
+  }, [layers])
 
   const onPointerDown = (event: React.MouseEvent) => {
     const canvas = canvasRef.current;
@@ -107,7 +102,7 @@ export function Canvas() {
     }
   };
 
-  const onPointerUp = () => {
+  const onPointerUp = (event: React.MouseEvent) => {
     const canvas = canvasRef.current;
     const tempCanvas = tempCanvasRef.current;
     if (!canvas || !tempCanvas) return;
@@ -122,6 +117,17 @@ export function Canvas() {
     // Clear the temporary canvas
     tempCtx.clearRect(0, 0, tempCanvas.width, tempCanvas.height);
 
+    setLayers([...layers, {
+      id: (Math.random()).toString(16),
+      type: canvasState.selectedLayerType!,
+      fill: canvasState.currentFillColor,
+      stroke: canvasState.currentStrokeColor,
+      x: canvasState.originX,
+      y: canvasState.originY,
+      width: event.pageX - canvasState.originX,
+      height: event.pageY - canvasState.originY,
+    }])
+    
     setCanvasState({
       ...canvasState,
       mode: CanvasMode.None,
