@@ -35,6 +35,7 @@ export enum CanvasMode {
   Resizing = "resizing",
   Pencil = "pencil",
   Moving = "moving",
+  Panning = "panning",
   None = "none",
 }
 
@@ -48,6 +49,8 @@ export type CanvasState = {
   currentY: number;
   originX: number;
   originY: number;
+  cameraX: number;
+  cameraY: number;
   // previewLayer: {
   //   type: LayerType;
   //   x: number;

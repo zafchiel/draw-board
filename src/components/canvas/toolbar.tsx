@@ -7,14 +7,14 @@ import { CanvasMode, LayerType } from "@/lib/types";
 export function Toolbar() {
   const { canvasState, setCanvasState } = useContext(CanvasStateContext);
   return (
-    <section className="fixed top-3 left-1/2 -translate-x-1/2 flex gap-2 p-1 border rounded-sm">
+    <section className="fixed z-10 top-3 left-1/2 -translate-x-1/2 flex gap-2 p-1 border rounded-sm">
       <ToolbarButton
         name="Move"
-        selected={canvasState.mode === CanvasMode.Moving}
+        selected={canvasState.mode === CanvasMode.None && canvasState.selectedLayerType === null}
         onClick={() => {
           setCanvasState({
             ...canvasState,
-            mode: CanvasMode.Moving,
+            mode: CanvasMode.None,
             selectedLayerType: null,
           });
         }}

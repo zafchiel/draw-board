@@ -22,6 +22,8 @@ const initCanvasState: CanvasState = {
     currentY: 0,
     originX: 0,
     originY: 0,
+    cameraX: 0,
+    cameraY: 0,
     selectedLayerType: null,
     previewLayer: null,
 }

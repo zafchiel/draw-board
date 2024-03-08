@@ -35,14 +35,32 @@ export function Canvas() {
   }, [theme, canvasState, setCanvasState])
 
   const onPointerDown = (event: React.MouseEvent) => {
+    event.preventDefault();
     const canvas = canvasRef.current;
     if (!canvas) return;
 
     const currentX = event.pageX;
     const currentY = event.pageY;
 
+    if (canvasState.mode === CanvasMode.None) {
+      // panning
+      // const moveX = event.pageX - canvasState.originX;
+      // const moveY = event.pageY - canvasState.originY;
+      // setLayers(layers.map((layer) => ({
+      //   ...layer,
+      //   x: layer.x + moveX,
+      //   y: layer.y + moveY,
+      // })))
+
+      setCanvasState({
+        ...canvasState,
+        mode: CanvasMode.Panning,
+        originX: event.pageX,
+        originY: event.pageY,
+      })
+    }
+
     if (canvasState.mode === CanvasMode.Selecting) {
-      console.log("Selecting mode");
       const selectedLayerIndex = layers.findLastIndex((layer) => isPointInLayer(currentX, currentY, layer));
       if(selectedLayerIndex !== -1) {
         setCanvasState({
@@ -80,6 +98,19 @@ export function Canvas() {
   };
 
   const onPointerMove = (event: React.MouseEvent) => {
+    if (canvasState.mode === CanvasMode.Panning) {
+      // panning
+      const moveX = event.pageX - canvasState.originX;
+      const moveY = event.pageY - canvasState.originY;
+
+      const ctx = canvasRef.current?.getContext("2d");
+      if (!ctx) return;
+      ctx.save();
+      ctx.translate(moveX, moveY);
+      reDraw(layers, canvasState.currentStrokeColor, canvasRef.current!);
+      ctx.restore();
+    }
+    
     // Drawing the preview layer
     if (canvasState.mode === CanvasMode.Inserting) {
       if (canvasState.selectedLayerType === LayerType.Rectangle) {
@@ -143,6 +174,17 @@ export function Canvas() {
     const tempCtx = tempCanvas.getContext("2d");
     if (!ctx || !tempCtx) return;
 
+
+    if(canvasState.mode === CanvasMode.Panning) {
+      setCanvasState({
+        ...canvasState,
+        mode: CanvasMode.None,
+      })
+      // ctx.setTransform(1, 0, 0, 1, 0, 0)
+      return;
+    }
+    
+
     // Clear the temporary canvas
     tempCtx.clearRect(0, 0, tempCanvas.width, tempCanvas.height);
 
@@ -160,7 +202,6 @@ export function Canvas() {
         isActive: false,
       }])
     }
-
     
     setCanvasState({
       ...canvasState,

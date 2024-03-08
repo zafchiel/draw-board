@@ -7,7 +7,7 @@ export function ClearCanvas() {
     const { setLayers } = useContext(CanvasStateContext);
 
     return (
-        <Button variant="outline" onClick={() => setLayers([])} className="fixed bottom-3 right-3">
+        <Button variant="outline" onClick={() => setLayers([])} className="fixed z-10 bottom-3 right-3">
             <Trash2 />
             <span className="sr-only">Clear Canvas</span>
         </Button>
