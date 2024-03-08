@@ -23,6 +23,7 @@ export type Layer = {
   height: number;
   fill: string;
   stroke: string;
+  isActive: boolean;
 };
 
 export enum CanvasMode {

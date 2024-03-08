@@ -1,6 +1,6 @@
 import { draw, reDraw } from "@/lib/drawings";
 import { CanvasMode, LayerType } from "@/lib/types";
-import { useTheme } from "@/lib/utils";
+import { isPointInLayer, useTheme } from "@/lib/utils";
 import { CanvasStateContext } from "@/providers/canvas-state-provider";
 import { useContext, useEffect, useRef } from "react";
 
@@ -15,8 +15,8 @@ export function Canvas() {
 
   useEffect(() => {
     if (!canvasRef.current) return;
-    reDraw(layers, canvasState.currentStrokeColor, canvasState.currentFillColor ,canvasRef.current);
-  }, [layers, canvasState.currentStrokeColor, canvasState.currentFillColor])
+    reDraw(layers ,canvasRef.current);
+  }, [layers])
 
   useEffect(() => {
     if(theme === "light") {
@@ -40,7 +40,33 @@ export function Canvas() {
     const currentY = event.pageY;
 
     if (canvasState.mode === CanvasMode.Selecting) {
-      console.log("Selecting mode")
+      console.log("Selecting mode");
+      const selectedLayerIndex = layers.findIndex((layer) => isPointInLayer(currentX, currentY, layer));
+      if(selectedLayerIndex !== -1) {
+        setCanvasState({
+          ...canvasState,
+          currentLayer: layers[selectedLayerIndex],
+        });
+        setLayers(layers.map((layer, index) => {
+          if(index === selectedLayerIndex) {
+            return {
+              ...layer,
+              isActive: true,
+            }
+          } else {
+            return {
+              ...layer,
+              isActive: false,
+            }
+          }
+        }))
+      } else {
+        setCanvasState({
+          ...canvasState,
+          currentLayer: null,
+        });
+      }
+
     } else if (canvasState.selectedLayerType === "rectangle" || canvasState.selectedLayerType === "ellipse") {
       setCanvasState({
         ...canvasState,
@@ -65,16 +91,16 @@ export function Canvas() {
         const width = event.pageX - canvasState.originX;
         const height = event.pageY - canvasState.originY;
 
-        draw(
-          canvasState.originX,
-          canvasState.originY,
+        draw({
+          x: canvasState.originX,
+          y: canvasState.originY,
           width,
           height,
-          theme === "light" ? "black" : "white",
-          "transparent",
-          tempCanvas,
-          LayerType.Rectangle
-        )
+          stroke: theme === "light" ? "black" : "white",
+          fill: "transparent",
+          canvas: tempCanvas,
+          type: LayerType.Rectangle
+        });
       }
 
       if (canvasState.selectedLayerType === LayerType.Ellipse) {
@@ -89,16 +115,16 @@ export function Canvas() {
         const width = event.pageX - canvasState.originX;
         const height = event.pageY - canvasState.originY;
 
-        draw(
-          canvasState.originX,
-          canvasState.originY,
+        draw({
+          x: canvasState.originX,
+          y: canvasState.originY,
           width,
           height,
-          theme === "light" ? "black" : "white",
-          "transparent",
-          tempCanvas,
-          LayerType.Ellipse
-        )
+          stroke: theme === "light" ? "black" : "white",
+          fill: "transparent",
+          canvas: tempCanvas,
+          type: LayerType.Ellipse
+        });
       }
     }
   };
@@ -125,6 +151,7 @@ export function Canvas() {
         y: canvasState.originY,
         width: event.pageX - canvasState.originX,
         height: event.pageY - canvasState.originY,
+        isActive: false,
       }])
     }
 

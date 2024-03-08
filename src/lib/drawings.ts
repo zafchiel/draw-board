@@ -3,16 +3,27 @@ import rough from "roughjs";
 
 const gen = rough.generator();
 
-export function draw(
-  x: number,
-  y: number,
-  width: number,
-  height: number,
-  stroke: string,
-  fill: string,
-  canvas: HTMLCanvasElement,
-  type: LayerType
-) {
+type DrawParams = {
+  x: number;
+  y: number;
+  width: number;
+  height: number;
+  stroke: string;
+  fill: string;
+  canvas: HTMLCanvasElement;
+  type: LayerType;
+}
+
+export function draw({
+  x,
+  y,
+  width,
+  height,
+  stroke,
+  fill,
+  canvas,
+  type
+}: DrawParams) {
   const rc = rough.canvas(canvas);
   let drawing;
 
@@ -31,7 +42,7 @@ export function draw(
   rc.draw(drawing);
 }
 
-export function reDraw(layers: Layer[], stroke: string, fill: string, canvas: HTMLCanvasElement) {
+export function reDraw(layers: Layer[], canvas: HTMLCanvasElement) {
   //   const rc = rough.canvas(canvas);
   const ctx = canvas.getContext("2d");
   if (!ctx) return;
@@ -41,29 +52,29 @@ export function reDraw(layers: Layer[], stroke: string, fill: string, canvas: HT
   layers.forEach((layer) => {
     switch (layer.type) {
       case LayerType.Rectangle:
-        draw(
-          layer.x,
-          layer.y,
-          layer.width,
-          layer.height,
-          stroke,
-          fill,
+        draw({
+          x: layer.x,
+          y: layer.y,
+          width: layer.width,
+          height: layer.height,
+          stroke: layer.isActive ? "blue" : layer.stroke,
+          fill: layer.fill,
           canvas,
-          LayerType.Rectangle
-        );
+          type: LayerType.Rectangle
+        });
         break;
 
       case LayerType.Ellipse:
-        draw(
-          layer.x,
-          layer.y,
-          layer.width,
-          layer.height,
-          stroke,
-          fill,
+        draw({
+          x: layer.x,
+          y: layer.y,
+          width: layer.width,
+          height: layer.height,
+          stroke: layer.isActive ? "blue" : layer.stroke,
+          fill: layer.fill,
           canvas,
-          LayerType.Ellipse
-        );
+          type: LayerType.Ellipse
+        });
         break;
         
       default:
