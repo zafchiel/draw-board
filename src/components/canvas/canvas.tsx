@@ -1,20 +1,36 @@
 import { draw, reDraw } from "@/lib/drawings";
 import { CanvasMode, LayerType } from "@/lib/types";
+import { useTheme } from "@/lib/utils";
 import { CanvasStateContext } from "@/providers/canvas-state-provider";
 import { useContext, useEffect, useRef } from "react";
-import rough from "roughjs";
 
-const gen = rough.generator();
+// import rough from "roughjs";
+// const gen = rough.generator();
 
 export function Canvas() {
   const { canvasState, setCanvasState, layers, setLayers } = useContext(CanvasStateContext);
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const tempCanvasRef = useRef<HTMLCanvasElement>(null);
+  const { theme } = useTheme();
 
   useEffect(() => {
     if (!canvasRef.current) return;
-    reDraw(layers, canvasRef.current);
-  }, [layers])
+    reDraw(layers, canvasState.currentStrokeColor, canvasState.currentFillColor ,canvasRef.current);
+  }, [layers, canvasState.currentStrokeColor, canvasState.currentFillColor])
+
+  useEffect(() => {
+    if(theme === "light") {
+      setCanvasState({
+        ...canvasState,
+        currentStrokeColor: "black",
+      })
+    } else if (theme === "dark") {
+      setCanvasState({
+        ...canvasState,
+        currentStrokeColor: "white",
+      })
+    }
+  }, [theme, canvasState, setCanvasState])
 
   const onPointerDown = (event: React.MouseEvent) => {
     const canvas = canvasRef.current;
@@ -54,7 +70,7 @@ export function Canvas() {
           canvasState.originY,
           width,
           height,
-          "black",
+          theme === "light" ? "black" : "white",
           "transparent",
           tempCanvas,
           LayerType.Rectangle
@@ -78,7 +94,7 @@ export function Canvas() {
           canvasState.originY,
           width,
           height,
-          "black",
+          theme === "light" ? "black" : "white",
           "transparent",
           tempCanvas,
           LayerType.Ellipse
@@ -96,16 +112,13 @@ export function Canvas() {
     const tempCtx = tempCanvas.getContext("2d");
     if (!ctx || !tempCtx) return;
 
-    // Draw the final rectangle on the main canvas
-    ctx.drawImage(tempCanvas, 0, 0);
-
     // Clear the temporary canvas
     tempCtx.clearRect(0, 0, tempCanvas.width, tempCanvas.height);
 
     if(canvasState.selectedLayerType !== null) {
       setLayers([...layers, {
         id: (Math.random()).toString(16),
-        type: canvasState.selectedLayerType!,
+        type: canvasState.selectedLayerType,
         fill: canvasState.currentFillColor,
         stroke: canvasState.currentStrokeColor,
         x: canvasState.originX,

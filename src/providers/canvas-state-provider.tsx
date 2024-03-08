@@ -16,17 +16,14 @@ type ContextValue = {
 const initCanvasState: CanvasState = {
     mode: CanvasMode.None,
     currentLayer: null,
-    currentFillColor: {
-         h: 0, s: 0, l: 0, a: 0
-    },
-    currentStrokeColor: {
-        h: 0, s: 0, l: 100, a: 1
-    },
+    currentFillColor: "transparent",
+    currentStrokeColor: "white",
     currentX: 0,
     currentY: 0,
     originX: 0,
     originY: 0,
-    selectedLayerType: null
+    selectedLayerType: null,
+    previewLayer: null,
 }
 
 const initContextValue: ContextValue = {

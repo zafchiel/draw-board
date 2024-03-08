@@ -1,6 +1,6 @@
 import { createContext, useEffect, useState } from "react";
 
-type Theme = "light" | "dark" | "system";
+type Theme = "light" | "dark";
 
 type ThemeProviderProps = {
     children: React.ReactNode;
@@ -14,13 +14,13 @@ type ThemeProviderState = {
 }
 
 const initState: ThemeProviderState = {
-    theme: "system",
+    theme: "dark",
     setTheme: () => {},
 }
 
 export const ThemeProviderContext = createContext<ThemeProviderState>(initState);
 
-export function ThemeProvider({ children, defaultTheme = "system", localStorageKey = "draw-board-ui-theme", ...props }: ThemeProviderProps) {
+export function ThemeProvider({ children, defaultTheme = "dark", localStorageKey = "draw-board-ui-theme", ...props }: ThemeProviderProps) {
     const [theme, setTheme] = useState<Theme>(
         () => (localStorage.getItem(localStorageKey) as Theme) || defaultTheme
     );
@@ -30,14 +30,14 @@ export function ThemeProvider({ children, defaultTheme = "system", localStorageK
 
         documentElement.classList.remove("light", "dark");
 
-        if (theme === "system") {
-            const systemTheme = window.matchMedia("(prefers-color-scheme: dark)").matches
-                ? "dark"
-                : "light";
+        // if (theme === "system") {
+        //     const systemTheme = window.matchMedia("(prefers-color-scheme: dark)").matches
+        //         ? "dark"
+        //         : "light";
 
-            documentElement.classList.add(systemTheme);
-            return;
-        }
+        //     documentElement.classList.add(systemTheme);
+        //     return;
+        // }
 
         documentElement.classList.add(theme);
     }, [theme])
