@@ -48,6 +48,7 @@ export function Canvas() {
     const currentX = event.pageX;
     const currentY = event.pageY;
 
+    // Activate panning mode
     if (canvasState.mode === CanvasMode.None && canvasState.selectedLayerType === null) {
       setCanvasState({
         ...canvasState,
@@ -58,6 +59,7 @@ export function Canvas() {
       return;
     }
 
+    // Select one layer
     if (canvasState.mode === CanvasMode.Selecting) {
       const selectedLayerIndex = layers.findLastIndex((layer) => isPointInLayer(currentX, currentY, layer));
       if(selectedLayerIndex !== -1) {
@@ -85,7 +87,9 @@ export function Canvas() {
         });
       }
 
-    } else if (canvasState.selectedLayerType === "rectangle" || canvasState.selectedLayerType === "ellipse") {
+    } 
+    // Activate inserting new layer mode
+    else if (canvasState.selectedLayerType === "rectangle" || canvasState.selectedLayerType === "ellipse") {
       setCanvasState({
         ...canvasState,
         mode: CanvasMode.Inserting,
@@ -96,6 +100,8 @@ export function Canvas() {
   };
 
   const onPointerMove = (event: React.MouseEvent) => {
+
+    // Panning the canvas
     if (canvasState.mode === CanvasMode.Panning) {
       const moveX = event.pageX - canvasState.originX;
       const moveY = event.pageY - canvasState.originY;
