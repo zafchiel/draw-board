@@ -42,8 +42,8 @@ export function draw({
   rc.draw(drawing);
 }
 
-export function reDraw(layers: Layer[], canvas: HTMLCanvasElement) {
-  //   const rc = rough.canvas(canvas);
+export function reDraw(layers: Layer[], stroke: string, canvas: HTMLCanvasElement) {
+  // const rc = rough.canvas(canvas);
   const ctx = canvas.getContext("2d");
   if (!ctx) return;
 
@@ -57,7 +57,7 @@ export function reDraw(layers: Layer[], canvas: HTMLCanvasElement) {
           y: layer.y,
           width: layer.width,
           height: layer.height,
-          stroke: layer.isActive ? "blue" : layer.stroke,
+          stroke: layer.isActive ? "#605e87" : stroke,
           fill: layer.fill,
           canvas,
           type: LayerType.Rectangle
@@ -70,7 +70,7 @@ export function reDraw(layers: Layer[], canvas: HTMLCanvasElement) {
           y: layer.y,
           width: layer.width,
           height: layer.height,
-          stroke: layer.isActive ? "blue" : layer.stroke,
+          stroke: layer.isActive ? "#605e87" : stroke,
           fill: layer.fill,
           canvas,
           type: LayerType.Ellipse

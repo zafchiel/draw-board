@@ -13,11 +13,13 @@ export function Canvas() {
   const tempCanvasRef = useRef<HTMLCanvasElement>(null);
   const { theme } = useTheme();
 
+  // Paint canvas
   useEffect(() => {
     if (!canvasRef.current) return;
-    reDraw(layers ,canvasRef.current);
-  }, [layers])
+    reDraw(layers, canvasState.currentStrokeColor, canvasRef.current);
+  }, [layers, canvasState.currentStrokeColor])
 
+  // Change layers color when theme changes
   useEffect(() => {
     if(theme === "light") {
       setCanvasState({
@@ -41,7 +43,7 @@ export function Canvas() {
 
     if (canvasState.mode === CanvasMode.Selecting) {
       console.log("Selecting mode");
-      const selectedLayerIndex = layers.findIndex((layer) => isPointInLayer(currentX, currentY, layer));
+      const selectedLayerIndex = layers.findLastIndex((layer) => isPointInLayer(currentX, currentY, layer));
       if(selectedLayerIndex !== -1) {
         setCanvasState({
           ...canvasState,
@@ -78,6 +80,7 @@ export function Canvas() {
   };
 
   const onPointerMove = (event: React.MouseEvent) => {
+    // Drawing the preview layer
     if (canvasState.mode === CanvasMode.Inserting) {
       if (canvasState.selectedLayerType === LayerType.Rectangle) {
         const tempCanvas = tempCanvasRef.current;
@@ -91,6 +94,7 @@ export function Canvas() {
         const width = event.pageX - canvasState.originX;
         const height = event.pageY - canvasState.originY;
 
+        // Draw preview rectangle
         draw({
           x: canvasState.originX,
           y: canvasState.originY,
@@ -115,6 +119,7 @@ export function Canvas() {
         const width = event.pageX - canvasState.originX;
         const height = event.pageY - canvasState.originY;
 
+        // Draw preview ellipse
         draw({
           x: canvasState.originX,
           y: canvasState.originY,
@@ -141,6 +146,7 @@ export function Canvas() {
     // Clear the temporary canvas
     tempCtx.clearRect(0, 0, tempCanvas.width, tempCanvas.height);
 
+    // Add final preview layer to the layers
     if(canvasState.selectedLayerType !== null) {
       setLayers([...layers, {
         id: (Math.random()).toString(16),
