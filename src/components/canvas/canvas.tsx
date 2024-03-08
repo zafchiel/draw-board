@@ -61,7 +61,7 @@ export function Canvas() {
 
     // Select one layer
     if (canvasState.mode === CanvasMode.Selecting) {
-      const selectedLayerIndex = layers.findLastIndex((layer) => isPointInLayer(currentX, currentY, layer));
+      const selectedLayerIndex = layers.findLastIndex((layer) => isPointInLayer(currentX - canvasState.cameraX, currentY - canvasState.cameraY, layer));
       if(selectedLayerIndex !== -1) {
         setCanvasState({
           ...canvasState,
