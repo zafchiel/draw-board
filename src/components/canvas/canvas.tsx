@@ -16,8 +16,14 @@ export function Canvas() {
   // Paint canvas
   useEffect(() => {
     if (!canvasRef.current) return;
-    reDraw(layers, canvasState.currentStrokeColor, canvasRef.current);
-  }, [layers, canvasState.currentStrokeColor])
+    reDraw({
+      cameraX: canvasState.cameraX,
+      cameraY: canvasState.cameraY,
+      canvas: canvasRef.current,
+      layers,
+      stroke: canvasState.currentStrokeColor,
+    });
+  }, [layers, canvasState.currentStrokeColor, canvasState.cameraX, canvasState.cameraY])
 
   // Change layers color when theme changes
   useEffect(() => {
@@ -42,22 +48,14 @@ export function Canvas() {
     const currentX = event.pageX;
     const currentY = event.pageY;
 
-    if (canvasState.mode === CanvasMode.None) {
-      // panning
-      // const moveX = event.pageX - canvasState.originX;
-      // const moveY = event.pageY - canvasState.originY;
-      // setLayers(layers.map((layer) => ({
-      //   ...layer,
-      //   x: layer.x + moveX,
-      //   y: layer.y + moveY,
-      // })))
-
+    if (canvasState.mode === CanvasMode.None && canvasState.selectedLayerType === null) {
       setCanvasState({
         ...canvasState,
         mode: CanvasMode.Panning,
-        originX: event.pageX,
-        originY: event.pageY,
+        originX: currentX,
+        originY: currentY,
       })
+      return;
     }
 
     if (canvasState.mode === CanvasMode.Selecting) {
@@ -99,16 +97,17 @@ export function Canvas() {
 
   const onPointerMove = (event: React.MouseEvent) => {
     if (canvasState.mode === CanvasMode.Panning) {
-      // panning
       const moveX = event.pageX - canvasState.originX;
-      const moveY = event.pageY - canvasState.originY;
-
-      const ctx = canvasRef.current?.getContext("2d");
-      if (!ctx) return;
-      ctx.save();
-      ctx.translate(moveX, moveY);
-      reDraw(layers, canvasState.currentStrokeColor, canvasRef.current!);
-      ctx.restore();
+    const moveY = event.pageY - canvasState.originY;
+    setCanvasState((prevCanvasState) => {
+      return {
+        ...prevCanvasState,
+        cameraX: prevCanvasState.cameraX + moveX,
+        cameraY: prevCanvasState.cameraY + moveY,
+        originX: event.pageX, // Update the origin to the current pointer position
+        originY: event.pageY, // Update the origin to the current pointer position
+      }
+    })
     }
     
     // Drawing the preview layer
@@ -180,7 +179,6 @@ export function Canvas() {
         ...canvasState,
         mode: CanvasMode.None,
       })
-      // ctx.setTransform(1, 0, 0, 1, 0, 0)
       return;
     }
     

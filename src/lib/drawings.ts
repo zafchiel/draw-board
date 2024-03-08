@@ -42,12 +42,22 @@ export function draw({
   rc.draw(drawing);
 }
 
-export function reDraw(layers: Layer[], stroke: string, canvas: HTMLCanvasElement) {
+type RedrawParams = {
+  layers: Layer[];
+  stroke: string;
+  cameraX: number;
+  cameraY: number;
+  canvas: HTMLCanvasElement;
+}
+
+export function reDraw({cameraX,cameraY,canvas,layers,stroke}: RedrawParams) {
   // const rc = rough.canvas(canvas);
   const ctx = canvas.getContext("2d");
   if (!ctx) return;
 
   ctx.clearRect(0, 0, canvas.width, canvas.height);
+  ctx.save();
+  ctx.translate(cameraX, cameraY);
 
   layers.forEach((layer) => {
     switch (layer.type) {
@@ -81,4 +91,7 @@ export function reDraw(layers: Layer[], stroke: string, canvas: HTMLCanvasElemen
         break;
     }
   });
+
+  ctx.restore();
+  // ctx.setTransform(1, 0, 0, 1, 0, 0);
 }
