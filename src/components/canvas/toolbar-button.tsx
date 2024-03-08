@@ -22,7 +22,7 @@ export function ToolbarButton({ name, onClick, children, selected }: ToolbarButt
             {children}
           </Button>
         </TooltipTrigger>
-        <TooltipContent>{name}</TooltipContent>
+        <TooltipContent className="font-semibold">{name}</TooltipContent>
       </Tooltip>
     </TooltipProvider>
   );

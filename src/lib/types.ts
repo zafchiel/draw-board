@@ -12,6 +12,8 @@ export enum LayerType {
   Ellipse = "ellipse",
   Path = "path",
   Text = "text",
+  Line = "line",
+  Arrow = "arrow",
 }
 
 export type Layer = {

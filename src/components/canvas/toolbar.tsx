@@ -1,4 +1,4 @@
-import { Circle, Hand, MousePointer2, Square } from "lucide-react";
+import { Circle, Hand, Minus, MousePointer2, MoveRight, Square } from "lucide-react";
 import { ToolbarButton } from "./toolbar-button";
 import { useContext } from "react";
 import { CanvasStateContext } from "@/providers/canvas-state-provider";
@@ -21,6 +21,7 @@ export function Toolbar() {
       >
         <Hand size={18} />
       </ToolbarButton>
+
       <ToolbarButton
         name="Select"
         selected={canvasState.mode === CanvasMode.Selecting}
@@ -34,6 +35,35 @@ export function Toolbar() {
       >
         <MousePointer2 size={18} />
       </ToolbarButton>
+
+      <ToolbarButton
+        name="Arrow"
+        selected={canvasState.selectedLayerType === LayerType.Arrow}
+        onClick={() => {
+          setCanvasState({
+            ...canvasState,
+            mode: CanvasMode.Inserting,
+            selectedLayerType: LayerType.Arrow,
+          });
+        }}
+      >
+        <MoveRight size={18} />
+      </ToolbarButton>
+
+      <ToolbarButton
+        name="Line"
+        selected={canvasState.selectedLayerType === LayerType.Line}
+        onClick={() => {
+          setCanvasState({
+            ...canvasState,
+            mode: CanvasMode.Inserting,
+            selectedLayerType: LayerType.Line,
+          });
+        }}
+      >
+        <Minus size={18} />
+      </ToolbarButton>
+
       <ToolbarButton
         name="Rectangle"
         selected={canvasState.selectedLayerType === LayerType.Rectangle}
@@ -47,6 +77,7 @@ export function Toolbar() {
       >
         <Square size={18} />
       </ToolbarButton>
+
       <ToolbarButton
         name="Ellipse"
         selected={canvasState.selectedLayerType === LayerType.Ellipse}
