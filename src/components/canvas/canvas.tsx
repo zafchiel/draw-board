@@ -85,6 +85,12 @@ export function Canvas() {
           ...canvasState,
           currentLayer: null,
         });
+        setLayers(layers.map((layer) => {
+          return {
+            ...layer,
+            isActive: false,
+          }
+        }))
       }
 
     } 
