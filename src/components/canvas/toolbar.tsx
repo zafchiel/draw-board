@@ -1,4 +1,12 @@
-import { Circle, Hand, Minus, MousePointer2, MoveRight, Square } from "lucide-react";
+import {
+  Circle,
+  Hand,
+  Minus,
+  MousePointer2,
+  MoveRight,
+  Pencil,
+  Square,
+} from "lucide-react";
 import { ToolbarButton } from "../ui/toolbar-button";
 import { useContext } from "react";
 import { CanvasStateContext } from "@/providers/canvas-state-provider";
@@ -10,7 +18,11 @@ export function Toolbar() {
     <section className="fixed z-10 top-3 left-1/2 -translate-x-1/2 flex gap-2 p-1.5 border rounded-sm bg-background">
       <ToolbarButton
         name="Move"
-        selected={canvasState.mode === CanvasMode.None && canvasState.selectedLayerType === null}
+        selected={
+          (canvasState.mode === CanvasMode.None &&
+            canvasState.selectedLayerType === null) ||
+          canvasState.mode === CanvasMode.Panning
+        }
         onClick={() => {
           setCanvasState({
             ...canvasState,
@@ -34,6 +46,20 @@ export function Toolbar() {
         }}
       >
         <MousePointer2 size={18} />
+      </ToolbarButton>
+
+      <ToolbarButton
+        name="Pencil"
+        selected={canvasState.mode === CanvasMode.Pencil}
+        onClick={() => {
+          setCanvasState({
+            ...canvasState,
+            mode: CanvasMode.Pencil,
+            selectedLayerType: LayerType.Path,
+          });
+        }}
+      >
+        <Pencil size={18} />
       </ToolbarButton>
 
       <ToolbarButton

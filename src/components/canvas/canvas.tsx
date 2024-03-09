@@ -257,6 +257,8 @@ export function Canvas() {
               ? "grab"
               : canvasState.mode === CanvasMode.Panning
               ? "grabbing"
+              : canvasState.mode === CanvasMode.Pencil
+              ? "crosshair"
               : "default",
         }}
       />
