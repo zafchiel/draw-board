@@ -8,7 +8,8 @@ import { useContext, useEffect, useRef } from "react";
 // const gen = rough.generator();
 
 export function Canvas() {
-  const { canvasState, setCanvasState, layers, setLayers } = useContext(CanvasStateContext);
+  const { canvasState, setCanvasState, layers, setLayers } =
+    useContext(CanvasStateContext);
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const tempCanvasRef = useRef<HTMLCanvasElement>(null);
   const { theme } = useTheme();
@@ -23,22 +24,27 @@ export function Canvas() {
       layers,
       stroke: canvasState.currentStrokeColor,
     });
-  }, [layers, canvasState.currentStrokeColor, canvasState.cameraX, canvasState.cameraY])
+  }, [
+    layers,
+    canvasState.currentStrokeColor,
+    canvasState.cameraX,
+    canvasState.cameraY,
+  ]);
 
   // Change layers color when theme changes
   useEffect(() => {
-    if(theme === "light") {
+    if (theme === "light") {
       setCanvasState({
         ...canvasState,
         currentStrokeColor: "black",
-      })
+      });
     } else if (theme === "dark") {
       setCanvasState({
         ...canvasState,
         currentStrokeColor: "white",
-      })
+      });
     }
-  }, [theme, canvasState, setCanvasState])
+  }, [theme, canvasState, setCanvasState]);
 
   const onPointerDown = (event: React.MouseEvent) => {
     event.preventDefault();
@@ -49,53 +55,68 @@ export function Canvas() {
     const currentY = event.pageY;
 
     // Activate panning mode
-    if (canvasState.mode === CanvasMode.None && canvasState.selectedLayerType === null) {
+    if (
+      canvasState.mode === CanvasMode.None &&
+      canvasState.selectedLayerType === null
+    ) {
       setCanvasState({
         ...canvasState,
         mode: CanvasMode.Panning,
         originX: currentX,
         originY: currentY,
-      })
+      });
       return;
     }
 
     // Select one layer
     if (canvasState.mode === CanvasMode.Selecting) {
-      const selectedLayerIndex = layers.findLastIndex((layer) => isPointInLayer(currentX - canvasState.cameraX, currentY - canvasState.cameraY, layer));
-      if(selectedLayerIndex !== -1) {
+      const selectedLayerIndex = layers.findLastIndex((layer) =>
+        isPointInLayer(
+          currentX - canvasState.cameraX,
+          currentY - canvasState.cameraY,
+          layer
+        )
+      );
+      if (selectedLayerIndex !== -1) {
         setCanvasState({
           ...canvasState,
           currentLayer: layers[selectedLayerIndex],
         });
-        setLayers(layers.map((layer, index) => {
-          if(index === selectedLayerIndex) {
-            return {
-              ...layer,
-              isActive: true,
+        setLayers(
+          layers.map((layer, index) => {
+            if (index === selectedLayerIndex) {
+              return {
+                ...layer,
+                isActive: true,
+              };
+            } else {
+              return {
+                ...layer,
+                isActive: false,
+              };
             }
-          } else {
-            return {
-              ...layer,
-              isActive: false,
-            }
-          }
-        }))
+          })
+        );
       } else {
         setCanvasState({
           ...canvasState,
           currentLayer: null,
         });
-        setLayers(layers.map((layer) => {
-          return {
-            ...layer,
-            isActive: false,
-          }
-        }))
+        setLayers(
+          layers.map((layer) => {
+            return {
+              ...layer,
+              isActive: false,
+            };
+          })
+        );
       }
-
-    } 
+    }
     // Activate inserting new layer mode
-    else if (canvasState.selectedLayerType === "rectangle" || canvasState.selectedLayerType === "ellipse") {
+    else if (
+      canvasState.selectedLayerType === "rectangle" ||
+      canvasState.selectedLayerType === "ellipse"
+    ) {
       setCanvasState({
         ...canvasState,
         mode: CanvasMode.Inserting,
@@ -106,7 +127,6 @@ export function Canvas() {
   };
 
   const onPointerMove = (event: React.MouseEvent) => {
-
     // Panning the canvas
     if (canvasState.mode === CanvasMode.Panning) {
       const moveX = event.pageX - canvasState.originX;
@@ -118,10 +138,10 @@ export function Canvas() {
           cameraY: prevCanvasState.cameraY + moveY,
           originX: event.pageX, // Update the origin to the current pointer position
           originY: event.pageY, // Update the origin to the current pointer position
-        }
-      })
+        };
+      });
     }
-    
+
     // Drawing the preview layer
     if (canvasState.mode === CanvasMode.Inserting) {
       if (canvasState.selectedLayerType === LayerType.Rectangle) {
@@ -145,7 +165,7 @@ export function Canvas() {
           stroke: theme === "light" ? "black" : "white",
           fill: "transparent",
           canvas: tempCanvas,
-          type: LayerType.Rectangle
+          type: LayerType.Rectangle,
         });
       }
 
@@ -170,7 +190,7 @@ export function Canvas() {
           stroke: theme === "light" ? "black" : "white",
           fill: "transparent",
           canvas: tempCanvas,
-          type: LayerType.Ellipse
+          type: LayerType.Ellipse,
         });
       }
     }
@@ -185,38 +205,39 @@ export function Canvas() {
     const tempCtx = tempCanvas.getContext("2d");
     if (!ctx || !tempCtx) return;
 
-
-    if(canvasState.mode === CanvasMode.Panning) {
+    if (canvasState.mode === CanvasMode.Panning) {
       setCanvasState({
         ...canvasState,
         mode: CanvasMode.None,
-      })
+      });
       return;
     }
-    
 
     // Clear the temporary canvas
     tempCtx.clearRect(0, 0, tempCanvas.width, tempCanvas.height);
 
     // Add final preview layer to the layers
-    if(canvasState.selectedLayerType !== null) {
-      setLayers([...layers, {
-        id: crypto.randomUUID(),
-        type: canvasState.selectedLayerType,
-        fill: canvasState.currentFillColor,
-        stroke: canvasState.currentStrokeColor,
-        x: canvasState.originX - canvasState.cameraX,
-        y: canvasState.originY - canvasState.cameraY,
-        width: event.pageX - canvasState.originX,
-        height: event.pageY - canvasState.originY,
-        isActive: false,
-      }])
+    if (canvasState.selectedLayerType !== null) {
+      setLayers([
+        ...layers,
+        {
+          id: crypto.randomUUID(),
+          type: canvasState.selectedLayerType,
+          fill: canvasState.currentFillColor,
+          stroke: canvasState.currentStrokeColor,
+          x: canvasState.originX - canvasState.cameraX,
+          y: canvasState.originY - canvasState.cameraY,
+          width: event.pageX - canvasState.originX,
+          height: event.pageY - canvasState.originY,
+          isActive: false,
+        },
+      ]);
     }
-    
+
     setCanvasState({
       ...canvasState,
       mode: CanvasMode.Selecting,
-      selectedLayerType: null
+      selectedLayerType: null,
     });
   };
 
@@ -229,13 +250,22 @@ export function Canvas() {
         onPointerDown={onPointerDown}
         onPointerMove={onPointerMove}
         onPointerUp={onPointerUp}
+        style={{
+          cursor:
+            canvasState.mode === CanvasMode.None &&
+            canvasState.selectedLayerType === null
+              ? "grab"
+              : canvasState.mode === CanvasMode.Panning
+              ? "grabbing"
+              : "default",
+        }}
       />
       {/* Canvas for preview layer */}
       <canvas
         ref={tempCanvasRef}
         width={window.innerWidth}
         height={window.innerHeight}
-        style={{ position: "absolute", top: 0, left: 0, pointerEvents: "none"}}
+        style={{ position: "absolute", top: 0, left: 0, pointerEvents: "none" }}
       />
     </>
   );
