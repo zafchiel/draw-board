@@ -201,7 +201,7 @@ export function Canvas() {
     // Add final preview layer to the layers
     if(canvasState.selectedLayerType !== null) {
       setLayers([...layers, {
-        id: (Math.random()).toString(16),
+        id: crypto.randomUUID(),
         type: canvasState.selectedLayerType,
         fill: canvasState.currentFillColor,
         stroke: canvasState.currentStrokeColor,

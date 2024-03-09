@@ -2,7 +2,7 @@ import { type ClassValue, clsx } from "clsx"
 import { twMerge } from "tailwind-merge"
 import { useContext } from "react";
 import { ThemeProviderContext } from "@/providers/theme-provider";
-import { type Layer } from "./types";
+import { LayerType, type Layer } from "./types";
 
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs))
@@ -19,5 +19,15 @@ export function useTheme() {
 }
 
 export function isPointInLayer(x: number, y: number, layer: Layer): boolean {
-  return x >= layer.x && x <= layer.x + layer.width && y >= layer.y && y <= layer.y + layer.height;
+  const dx = x - layer.x + layer.width / 2;
+  const dy = y - layer.y + layer.height / 2;
+  
+  switch(layer.type) {
+    case LayerType.Rectangle:
+      return x >= layer.x && x <= layer.x + layer.width && y >= layer.y && y <= layer.y + layer.height;
+    case LayerType.Ellipse:
+      return dx ** 2 + dy ** 2 <= (layer.width / 2) ** 2;
+    default:
+      return false;
+  }
 }
