@@ -34,6 +34,9 @@ export function draw({
     case LayerType.Ellipse:
       drawing = gen.ellipse(x + width / 2, y + height / 2, width, height, { stroke, fill, roughness: 0.2});
       break;
+    case LayerType.Line:
+      drawing = gen.line(x, y, x + width, y + height, { stroke, roughness: 0.2 });
+      break;
     default:
       break;
   }
@@ -87,6 +90,18 @@ export function reDraw({cameraX,cameraY,canvas,layers,stroke}: RedrawParams) {
         });
         break;
         
+      case LayerType.Line:
+        draw({
+          x: layer.x,
+          y: layer.y,
+          width: layer.width,
+          height: layer.height,
+          stroke: layer.isActive ? "#605e87" : stroke,
+          fill: layer.fill,
+          canvas,
+          type: LayerType.Line
+        });
+        break;
       default:
         break;
     }

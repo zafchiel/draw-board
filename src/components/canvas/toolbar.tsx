@@ -68,7 +68,7 @@ export function Toolbar() {
         onClick={() => {
           setCanvasState({
             ...canvasState,
-            mode: CanvasMode.Inserting,
+            mode: CanvasMode.None,
             selectedLayerType: LayerType.Arrow,
           });
         }}
@@ -82,7 +82,7 @@ export function Toolbar() {
         onClick={() => {
           setCanvasState({
             ...canvasState,
-            mode: CanvasMode.Inserting,
+            mode: CanvasMode.None,
             selectedLayerType: LayerType.Line,
           });
         }}

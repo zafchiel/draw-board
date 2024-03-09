@@ -115,7 +115,8 @@ export function Canvas() {
     // Activate inserting new layer mode
     else if (
       canvasState.selectedLayerType === "rectangle" ||
-      canvasState.selectedLayerType === "ellipse"
+      canvasState.selectedLayerType === "ellipse" ||
+      canvasState.selectedLayerType === "line"
     ) {
       setCanvasState({
         ...canvasState,
@@ -143,9 +144,8 @@ export function Canvas() {
     }
 
     // Drawing the preview layer
-    if (canvasState.mode === CanvasMode.Inserting) {
-      if (canvasState.selectedLayerType === LayerType.Rectangle) {
-        const tempCanvas = tempCanvasRef.current;
+    if (canvasState.mode === CanvasMode.Inserting && canvasState.selectedLayerType) {
+      const tempCanvas = tempCanvasRef.current;
         if (!tempCanvas) return;
 
         const ctx = tempCanvas.getContext("2d");
@@ -156,7 +156,6 @@ export function Canvas() {
         const width = event.pageX - canvasState.originX;
         const height = event.pageY - canvasState.originY;
 
-        // Draw preview rectangle
         draw({
           x: canvasState.originX,
           y: canvasState.originY,
@@ -165,34 +164,83 @@ export function Canvas() {
           stroke: theme === "light" ? "black" : "white",
           fill: "transparent",
           canvas: tempCanvas,
-          type: LayerType.Rectangle,
+          type: canvasState.selectedLayerType,
         });
-      }
 
-      if (canvasState.selectedLayerType === LayerType.Ellipse) {
-        const tempCanvas = tempCanvasRef.current;
-        if (!tempCanvas) return;
+      // if (canvasState.selectedLayerType === LayerType.Rectangle) {
+      //   const tempCanvas = tempCanvasRef.current;
+      //   if (!tempCanvas) return;
 
-        const ctx = tempCanvas.getContext("2d");
-        if (!ctx) return;
+      //   const ctx = tempCanvas.getContext("2d");
+      //   if (!ctx) return;
 
-        ctx.clearRect(0, 0, tempCanvas.width, tempCanvas.height); // Clear the temporary canvas
+      //   ctx.clearRect(0, 0, tempCanvas.width, tempCanvas.height); // Clear the temporary canvas
 
-        const width = event.pageX - canvasState.originX;
-        const height = event.pageY - canvasState.originY;
+      //   const width = event.pageX - canvasState.originX;
+      //   const height = event.pageY - canvasState.originY;
 
-        // Draw preview ellipse
-        draw({
-          x: canvasState.originX,
-          y: canvasState.originY,
-          width,
-          height,
-          stroke: theme === "light" ? "black" : "white",
-          fill: "transparent",
-          canvas: tempCanvas,
-          type: LayerType.Ellipse,
-        });
-      }
+      //   // Draw preview rectangle
+      //   draw({
+      //     x: canvasState.originX,
+      //     y: canvasState.originY,
+      //     width,
+      //     height,
+      //     stroke: theme === "light" ? "black" : "white",
+      //     fill: "transparent",
+      //     canvas: tempCanvas,
+      //     type: LayerType.Rectangle,
+      //   });
+      // }
+
+      // else if (canvasState.selectedLayerType === LayerType.Ellipse) {
+      //   const tempCanvas = tempCanvasRef.current;
+      //   if (!tempCanvas) return;
+
+      //   const ctx = tempCanvas.getContext("2d");
+      //   if (!ctx) return;
+
+      //   ctx.clearRect(0, 0, tempCanvas.width, tempCanvas.height); // Clear the temporary canvas
+
+      //   const width = event.pageX - canvasState.originX;
+      //   const height = event.pageY - canvasState.originY;
+
+      //   // Draw preview ellipse
+      //   draw({
+      //     x: canvasState.originX,
+      //     y: canvasState.originY,
+      //     width,
+      //     height,
+      //     stroke: theme === "light" ? "black" : "white",
+      //     fill: "transparent",
+      //     canvas: tempCanvas,
+      //     type: LayerType.Ellipse,
+      //   });
+      // }
+
+      // else if (canvasState.selectedLayerType === LayerType.Line) {
+      //   const tempCanvas = tempCanvasRef.current;
+      //   if (!tempCanvas) return;
+
+      //   const ctx = tempCanvas.getContext("2d");
+      //   if (!ctx) return;
+
+      //   ctx.clearRect(0, 0, tempCanvas.width, tempCanvas.height); // Clear the temporary canvas
+
+      //   const width = event.pageX - canvasState.originX;
+      //   const height = event.pageY - canvasState.originY;
+
+      //   // Draw preview ellipse
+      //   draw({
+      //     x: canvasState.originX,
+      //     y: canvasState.originY,
+      //     width,
+      //     height,
+      //     stroke: theme === "light" ? "black" : "white",
+      //     fill: "transparent",
+      //     canvas: tempCanvas,
+      //     type: LayerType.Line,
+      //   });
+      // }
     }
   };
 
