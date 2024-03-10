@@ -1,5 +1,6 @@
 import { LayerType, type Layer } from "./types";
 import rough from "roughjs";
+import { pointsToSvgPath } from "./utils";
 
 const gen = rough.generator();
 
@@ -11,6 +12,7 @@ type DrawParams = {
   stroke: string;
   fill: string;
   canvas: HTMLCanvasElement;
+  points: number[][] | null;
   type: LayerType;
 }
 
@@ -22,6 +24,7 @@ export function draw({
   stroke,
   fill,
   canvas,
+  points,
   type
 }: DrawParams) {
   const rc = rough.canvas(canvas);
@@ -36,6 +39,9 @@ export function draw({
       break;
     case LayerType.Line:
       drawing = gen.line(x, y, x + width, y + height, { stroke, roughness: 0.2 });
+      break;
+    case LayerType.Path:
+      drawing = gen.path(pointsToSvgPath(points!), { stroke, roughness: 0.2 });
       break;
     default:
       break;
@@ -63,48 +69,17 @@ export function reDraw({cameraX,cameraY,canvas,layers,stroke}: RedrawParams) {
   ctx.translate(cameraX, cameraY);
 
   layers.forEach((layer) => {
-    switch (layer.type) {
-      case LayerType.Rectangle:
-        draw({
-          x: layer.x,
-          y: layer.y,
-          width: layer.width,
-          height: layer.height,
-          stroke: layer.isActive ? "#605e87" : stroke,
-          fill: layer.fill,
-          canvas,
-          type: LayerType.Rectangle
-        });
-        break;
-
-      case LayerType.Ellipse:
-        draw({
-          x: layer.x,
-          y: layer.y,
-          width: layer.width,
-          height: layer.height,
-          stroke: layer.isActive ? "#605e87" : stroke,
-          fill: layer.fill,
-          canvas,
-          type: LayerType.Ellipse
-        });
-        break;
-        
-      case LayerType.Line:
-        draw({
-          x: layer.x,
-          y: layer.y,
-          width: layer.width,
-          height: layer.height,
-          stroke: layer.isActive ? "#605e87" : stroke,
-          fill: layer.fill,
-          canvas,
-          type: LayerType.Line
-        });
-        break;
-      default:
-        break;
-    }
+    draw({
+      x: layer.x,
+      y: layer.y,
+      width: layer.width,
+      height: layer.height,
+      stroke: layer.isActive ? "#605e87" : stroke,
+      fill: layer.fill,
+      points: layer.points,
+      type: layer.type,
+      canvas
+    });
   });
 
   ctx.restore();

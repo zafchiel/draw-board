@@ -1,15 +1,14 @@
 import { draw, reDraw } from "@/lib/drawings";
-import { CanvasMode, LayerType } from "@/lib/types";
+import { CanvasMode } from "@/lib/types";
 import { isPointInLayer, useTheme } from "@/lib/utils";
 import { CanvasStateContext } from "@/providers/canvas-state-provider";
-import { useContext, useEffect, useRef } from "react";
-
-// import rough from "roughjs";
-// const gen = rough.generator();
+import { useContext, useEffect, useRef, useState } from "react";
 
 export function Canvas() {
   const { canvasState, setCanvasState, layers, setLayers } =
     useContext(CanvasStateContext);
+  const [pathPoints, setPathPoints] = useState<number[][] | null>(null);
+  const [isDrawingPath, setIsDrawingPath] = useState(false);
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const tempCanvasRef = useRef<HTMLCanvasElement>(null);
   const { theme } = useTheme();
@@ -53,6 +52,23 @@ export function Canvas() {
 
     const currentX = event.pageX;
     const currentY = event.pageY;
+
+    if (canvasState.mode === CanvasMode.Pencil) {
+      setIsDrawingPath(true);
+      const tempCanvas = tempCanvasRef.current;
+      if (!tempCanvas) return;
+      const tempCanvasCtx = tempCanvas.getContext("2d");
+      if(!tempCanvasCtx) return;
+
+      setPathPoints([[currentX, currentY]]);
+
+      tempCanvasCtx.clearRect(0, 0, tempCanvas.width, tempCanvas.height);
+      tempCanvasCtx.lineCap = "round";
+      tempCanvasCtx.strokeStyle = theme === "light" ? "black" : "white";
+      tempCanvasCtx.lineWidth = 2;
+      tempCanvasCtx.beginPath();
+      return;
+    }
 
     // Activate panning mode
     if (
@@ -127,7 +143,16 @@ export function Canvas() {
     }
   };
 
-  const onPointerMove = (event: React.MouseEvent) => {
+  const onPointerMove = (event: React.PointerEvent) => {
+    if(isDrawingPath) {
+      const tempCanvasCtx = tempCanvasRef.current?.getContext("2d");
+      if(!tempCanvasCtx) return;
+      setPathPoints((state) => [...state!, [event.pageX, event.pageY]]);
+      tempCanvasCtx.lineTo(event.pageX, event.pageY);
+      tempCanvasCtx.stroke();
+      return;
+    }
+    
     // Panning the canvas
     if (canvasState.mode === CanvasMode.Panning) {
       const moveX = event.pageX - canvasState.originX;
@@ -144,107 +169,36 @@ export function Canvas() {
     }
 
     // Drawing the preview layer
-    if (canvasState.mode === CanvasMode.Inserting && canvasState.selectedLayerType) {
+    if (canvasState.mode === CanvasMode.Inserting && canvasState.selectedLayerType !== null) {
       const tempCanvas = tempCanvasRef.current;
-        if (!tempCanvas) return;
+      if (!tempCanvas) return;
 
-        const ctx = tempCanvas.getContext("2d");
-        if (!ctx) return;
+      const ctx = tempCanvas.getContext("2d");
+      if (!ctx) return;
 
-        ctx.clearRect(0, 0, tempCanvas.width, tempCanvas.height); // Clear the temporary canvas
+      ctx.clearRect(0, 0, tempCanvas.width, tempCanvas.height); // Clear the temporary canvas
 
-        const width = event.pageX - canvasState.originX;
-        const height = event.pageY - canvasState.originY;
+      const width = event.pageX - canvasState.originX;
+      const height = event.pageY - canvasState.originY;
 
-        draw({
-          x: canvasState.originX,
-          y: canvasState.originY,
-          width,
-          height,
-          stroke: theme === "light" ? "black" : "white",
-          fill: "transparent",
-          canvas: tempCanvas,
-          type: canvasState.selectedLayerType,
-        });
-
-      // if (canvasState.selectedLayerType === LayerType.Rectangle) {
-      //   const tempCanvas = tempCanvasRef.current;
-      //   if (!tempCanvas) return;
-
-      //   const ctx = tempCanvas.getContext("2d");
-      //   if (!ctx) return;
-
-      //   ctx.clearRect(0, 0, tempCanvas.width, tempCanvas.height); // Clear the temporary canvas
-
-      //   const width = event.pageX - canvasState.originX;
-      //   const height = event.pageY - canvasState.originY;
-
-      //   // Draw preview rectangle
-      //   draw({
-      //     x: canvasState.originX,
-      //     y: canvasState.originY,
-      //     width,
-      //     height,
-      //     stroke: theme === "light" ? "black" : "white",
-      //     fill: "transparent",
-      //     canvas: tempCanvas,
-      //     type: LayerType.Rectangle,
-      //   });
-      // }
-
-      // else if (canvasState.selectedLayerType === LayerType.Ellipse) {
-      //   const tempCanvas = tempCanvasRef.current;
-      //   if (!tempCanvas) return;
-
-      //   const ctx = tempCanvas.getContext("2d");
-      //   if (!ctx) return;
-
-      //   ctx.clearRect(0, 0, tempCanvas.width, tempCanvas.height); // Clear the temporary canvas
-
-      //   const width = event.pageX - canvasState.originX;
-      //   const height = event.pageY - canvasState.originY;
-
-      //   // Draw preview ellipse
-      //   draw({
-      //     x: canvasState.originX,
-      //     y: canvasState.originY,
-      //     width,
-      //     height,
-      //     stroke: theme === "light" ? "black" : "white",
-      //     fill: "transparent",
-      //     canvas: tempCanvas,
-      //     type: LayerType.Ellipse,
-      //   });
-      // }
-
-      // else if (canvasState.selectedLayerType === LayerType.Line) {
-      //   const tempCanvas = tempCanvasRef.current;
-      //   if (!tempCanvas) return;
-
-      //   const ctx = tempCanvas.getContext("2d");
-      //   if (!ctx) return;
-
-      //   ctx.clearRect(0, 0, tempCanvas.width, tempCanvas.height); // Clear the temporary canvas
-
-      //   const width = event.pageX - canvasState.originX;
-      //   const height = event.pageY - canvasState.originY;
-
-      //   // Draw preview ellipse
-      //   draw({
-      //     x: canvasState.originX,
-      //     y: canvasState.originY,
-      //     width,
-      //     height,
-      //     stroke: theme === "light" ? "black" : "white",
-      //     fill: "transparent",
-      //     canvas: tempCanvas,
-      //     type: LayerType.Line,
-      //   });
-      // }
+      draw({
+        x: canvasState.originX,
+        y: canvasState.originY,
+        width,
+        height,
+        stroke: theme === "light" ? "black" : "white",
+        fill: "transparent",
+        canvas: tempCanvas,
+        points: null,
+        type: canvasState.selectedLayerType,
+      });
     }
   };
 
-  const onPointerUp = (event: React.MouseEvent) => {
+  const onPointerUp = (event: React.PointerEvent) => {
+
+    
+
     const canvas = canvasRef.current;
     const tempCanvas = tempCanvasRef.current;
     if (!canvas || !tempCanvas) return;
@@ -278,8 +232,15 @@ export function Canvas() {
           width: event.pageX - canvasState.originX,
           height: event.pageY - canvasState.originY,
           isActive: false,
+          points: pathPoints,
         },
       ]);
+    }
+
+    // Reset drawing path
+    if(isDrawingPath) {
+      setIsDrawingPath(false);
+      setPathPoints(null);
     }
 
     setCanvasState({

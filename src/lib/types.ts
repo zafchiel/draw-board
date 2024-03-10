@@ -26,6 +26,7 @@ export type Layer = {
   fill: string;
   stroke: string;
   isActive: boolean;
+  points: number[][] | null;
 };
 
 export enum CanvasMode {
