@@ -1,6 +1,6 @@
 import { LayerType, type Layer } from "./types";
 import rough from "roughjs";
-import { pointsToSvgPath } from "./utils";
+import { pointsToSvgPathWithHandDrawnEffect } from "./utils";
 
 const gen = rough.generator();
 
@@ -41,7 +41,7 @@ export function draw({
       drawing = gen.line(x, y, x + width, y + height, { stroke, roughness: 0.2 });
       break;
     case LayerType.Path:
-      drawing = gen.path(pointsToSvgPath(points!), { stroke, roughness: 0.2 });
+      drawing = gen.path(pointsToSvgPathWithHandDrawnEffect(points!), { stroke, roughness: 0.8, simplification: 1 });
       break;
     default:
       break;

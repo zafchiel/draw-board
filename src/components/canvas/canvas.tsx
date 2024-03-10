@@ -196,9 +196,6 @@ export function Canvas() {
   };
 
   const onPointerUp = (event: React.PointerEvent) => {
-
-    
-
     const canvas = canvasRef.current;
     const tempCanvas = tempCanvasRef.current;
     if (!canvas || !tempCanvas) return;

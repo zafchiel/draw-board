@@ -54,3 +54,12 @@ export function pointsToSvgPath(points: number[][]) {
     return path + (index === 0 ? `M${x},${y}` : ` L${x},${y}`);
   }, '');
 }
+
+export function pointsToSvgPathWithHandDrawnEffect(points: number[][]) {
+  const path = points.reduce((path, point, index) => {
+    const [x, y] = point;
+    return path + (index === 0 ? `M${x},${y}` : ` L${x},${y}`);
+  }, '');
+  
+  return path;
+}
