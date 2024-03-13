@@ -21,6 +21,7 @@ export function useTheme() {
 export function isPointInLayer(x: number, y: number, layer: Layer): boolean {
   const dx = x - layer.x + layer.width / 2;
   const dy = y - layer.y + layer.height / 2;
+  return x >= layer.x && x <= layer.x + layer.width && y >= layer.y && y <= layer.y + layer.height;
   
   switch(layer.type) {
     case LayerType.Rectangle:

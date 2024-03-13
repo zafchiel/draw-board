@@ -69,12 +69,25 @@ export function reDraw({cameraX,cameraY,canvas,layers,stroke}: RedrawParams) {
   ctx.translate(cameraX, cameraY);
 
   layers.forEach((layer) => {
+    if(layer.isActive) {
+      draw({
+        x: layer.x - 10,
+        y: layer.y - 10,
+        width: layer.width + 20,
+        height: layer.height + 20,
+        stroke: "#605e87",
+        fill: layer.fill,
+        points: layer.points,
+        type: LayerType.Rectangle,
+        canvas
+      })
+    }
     draw({
       x: layer.x,
       y: layer.y,
       width: layer.width,
       height: layer.height,
-      stroke: layer.isActive ? "#605e87" : stroke,
+      stroke: stroke,
       fill: layer.fill,
       points: layer.points,
       type: layer.type,

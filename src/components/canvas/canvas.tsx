@@ -28,6 +28,8 @@ export function Canvas() {
     canvasState.currentStrokeColor,
     canvasState.cameraX,
     canvasState.cameraY,
+    window.innerWidth,
+    window.innerHeight,
   ]);
 
   // Change layers color when theme changes
@@ -54,6 +56,12 @@ export function Canvas() {
     const currentY = event.pageY;
 
     if (canvasState.mode === CanvasMode.Pencil) {
+      setCanvasState({
+        ...canvasState,
+        originX: currentX,
+        originY: currentY,
+      });
+      
       setIsDrawingPath(true);
       const tempCanvas = tempCanvasRef.current;
       if (!tempCanvas) return;
