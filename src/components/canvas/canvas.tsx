@@ -1,6 +1,6 @@
 import { draw, reDraw } from "@/lib/drawings";
 import { CanvasMode } from "@/lib/types";
-import { isPointInLayer, useTheme } from "@/lib/utils";
+import { getBoundingBox, isPointInLayer, useTheme } from "@/lib/utils";
 import { CanvasStateContext } from "@/providers/canvas-state-provider";
 import { useContext, useEffect, useRef, useState } from "react";
 
@@ -61,12 +61,12 @@ export function Canvas() {
         originX: currentX,
         originY: currentY,
       });
-      
+
       setIsDrawingPath(true);
       const tempCanvas = tempCanvasRef.current;
       if (!tempCanvas) return;
       const tempCanvasCtx = tempCanvas.getContext("2d");
-      if(!tempCanvasCtx) return;
+      if (!tempCanvasCtx) return;
 
       setPathPoints([[currentX, currentY]]);
 
@@ -152,15 +152,15 @@ export function Canvas() {
   };
 
   const onPointerMove = (event: React.PointerEvent) => {
-    if(isDrawingPath) {
+    if (isDrawingPath) {
       const tempCanvasCtx = tempCanvasRef.current?.getContext("2d");
-      if(!tempCanvasCtx) return;
+      if (!tempCanvasCtx) return;
       setPathPoints((state) => [...state!, [event.pageX, event.pageY]]);
       tempCanvasCtx.lineTo(event.pageX, event.pageY);
       tempCanvasCtx.stroke();
       return;
     }
-    
+
     // Panning the canvas
     if (canvasState.mode === CanvasMode.Panning) {
       const moveX = event.pageX - canvasState.originX;
@@ -177,7 +177,10 @@ export function Canvas() {
     }
 
     // Drawing the preview layer
-    if (canvasState.mode === CanvasMode.Inserting && canvasState.selectedLayerType !== null) {
+    if (
+      canvasState.mode === CanvasMode.Inserting &&
+      canvasState.selectedLayerType !== null
+    ) {
       const tempCanvas = tempCanvasRef.current;
       if (!tempCanvas) return;
 
@@ -223,8 +226,33 @@ export function Canvas() {
     // Clear the temporary canvas
     tempCtx.clearRect(0, 0, tempCanvas.width, tempCanvas.height);
 
-    // Add final preview layer to the layers
-    if (canvasState.selectedLayerType !== null) {
+    if(canvasState.selectedLayerType == null) return;
+
+    // Reset drawing path
+    if (isDrawingPath && pathPoints !== null) {
+      const boundingBox = getBoundingBox(pathPoints);
+
+      // Add drawing path to the layers
+      setLayers([
+        ...layers,
+        {
+          id: crypto.randomUUID(),
+          type: canvasState.selectedLayerType,
+          fill: canvasState.currentFillColor,
+          stroke: canvasState.currentStrokeColor,
+          x: boundingBox.x - canvasState.cameraX,
+          y: boundingBox.y - canvasState.cameraY,
+          width: boundingBox.width,
+          height: boundingBox.height,
+          isActive: false,
+          points: pathPoints,
+        },
+      ]);
+
+      setIsDrawingPath(false);
+      setPathPoints(null);
+    } else {
+      // Add final preview layer to the layers
       setLayers([
         ...layers,
         {
@@ -240,12 +268,6 @@ export function Canvas() {
           points: pathPoints,
         },
       ]);
-    }
-
-    // Reset drawing path
-    if(isDrawingPath) {
-      setIsDrawingPath(false);
-      setPathPoints(null);
     }
 
     setCanvasState({

@@ -33,29 +33,6 @@ export function isPointInLayer(x: number, y: number, layer: Layer): boolean {
   }
 }
 
-export function getSvgPathFromStroke(stroke: number[][]) {
-  if (!stroke.length) return "";
-
-  const d = stroke.reduce(
-    (acc, [x0, y0], i, arr) => {
-      const [x1, y1] = arr[(i + 1) % arr.length];
-      acc.push(x0, y0, (x0 + x1) / 2, (y0 + y1) / 2);
-      return acc;
-    },
-    ["M", ...stroke[0], "Q"]
-  );
-
-  d.push("Z");
-  return d.join(" ");
-}
-
-export function pointsToSvgPath(points: number[][]) {
-  return points.reduce((path, point, index) => {
-    const [x, y] = point;
-    return path + (index === 0 ? `M${x},${y}` : ` L${x},${y}`);
-  }, '');
-}
-
 export function pointsToSvgPathWithHandDrawnEffect(points: number[][]) {
   const path = points.reduce((path, point, index) => {
     const [x, y] = point;
@@ -63,4 +40,14 @@ export function pointsToSvgPathWithHandDrawnEffect(points: number[][]) {
   }, '');
   
   return path;
+}
+
+export function getBoundingBox(points: number[][]) {
+  const xs = points.map(([x]) => x);
+  const ys = points.map(([, y]) => y);
+  const minX = Math.min(...xs);
+  const maxX = Math.max(...xs);
+  const minY = Math.min(...ys);
+  const maxY = Math.max(...ys);
+  return { x: minX, y: minY, width: maxX - minX, height: maxY - minY };
 }
