@@ -232,6 +232,8 @@ export function Canvas() {
     if (isDrawingPath && pathPoints !== null) {
       const boundingBox = getBoundingBox(pathPoints);
 
+      const cameraMovedPoints = pathPoints.map(([x, y]) => [x - canvasState.cameraX, y - canvasState.cameraY])
+
       // Add drawing path to the layers
       setLayers([
         ...layers,
@@ -245,7 +247,7 @@ export function Canvas() {
           width: boundingBox.width,
           height: boundingBox.height,
           isActive: false,
-          points: pathPoints,
+          points: cameraMovedPoints,
         },
       ]);
 
@@ -270,6 +272,8 @@ export function Canvas() {
         },
       ]);
     }
+
+
 
     setCanvasState({
       ...canvasState,
