@@ -251,6 +251,7 @@ export function Canvas() {
 
       setIsDrawingPath(false);
       setPathPoints(null);
+      return;
     } else {
       // Add final preview layer to the layers
       setLayers([
@@ -272,8 +273,7 @@ export function Canvas() {
 
     setCanvasState({
       ...canvasState,
-      mode: CanvasMode.Selecting,
-      selectedLayerType: null,
+      mode: CanvasMode.None,
     });
   };
 
