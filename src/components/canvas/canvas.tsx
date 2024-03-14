@@ -104,8 +104,12 @@ export function Canvas() {
       if (selectedLayerIndex !== -1) {
         setCanvasState({
           ...canvasState,
+          mode: CanvasMode.Moving,
           currentLayer: layers[selectedLayerIndex],
+          originX: currentX,
+          originY: currentY,
         });
+
         setLayers(
           layers.map((layer, index) => {
             if (index === selectedLayerIndex) {
@@ -152,6 +156,46 @@ export function Canvas() {
   };
 
   const onPointerMove = (event: React.PointerEvent) => {
+    if (canvasState.mode === CanvasMode.Moving) {
+      const moveX = event.pageX - canvasState.originX;
+      const moveY = event.pageY - canvasState.originY;
+      const selectedLayerId = canvasState.currentLayer?.id;
+
+      if (!selectedLayerId) return;
+
+      setLayers(
+        layers.map((layer) => {
+          if (layer.id === selectedLayerId) {
+            if (layer.points) {
+              const movedPoints = layer.points.map(([x, y]) => [
+                x + moveX,
+                y + moveY,
+              ]);
+              return {
+                ...layer,
+                x: layer.x + moveX,
+                y: layer.y + moveY,
+                points: movedPoints,
+              };
+            } else {
+              return {
+                ...layer,
+                x: layer.x + moveX,
+                y: layer.y + moveY,
+              };
+            }
+          } else {
+            return layer;
+          }
+        })
+      );
+      setCanvasState({
+        ...canvasState,
+        originX: event.pageX,
+        originY: event.pageY,
+      });
+    }
+
     if (isDrawingPath) {
       const tempCanvasCtx = tempCanvasRef.current?.getContext("2d");
       if (!tempCanvasCtx) return;
@@ -215,6 +259,14 @@ export function Canvas() {
     const tempCtx = tempCanvas.getContext("2d");
     if (!ctx || !tempCtx) return;
 
+    if (canvasState.mode === CanvasMode.Moving) {
+      setCanvasState({
+        ...canvasState,
+        mode: CanvasMode.Selecting,
+      });
+      return;
+    }
+
     if (canvasState.mode === CanvasMode.Panning) {
       setCanvasState({
         ...canvasState,
@@ -226,13 +278,16 @@ export function Canvas() {
     // Clear the temporary canvas
     tempCtx.clearRect(0, 0, tempCanvas.width, tempCanvas.height);
 
-    if(canvasState.selectedLayerType == null) return;
+    if (canvasState.selectedLayerType == null) return;
 
     // Reset drawing path
     if (isDrawingPath && pathPoints !== null) {
       const boundingBox = getBoundingBox(pathPoints);
 
-      const cameraMovedPoints = pathPoints.map(([x, y]) => [x - canvasState.cameraX, y - canvasState.cameraY])
+      const cameraMovedPoints = pathPoints.map(([x, y]) => [
+        x - canvasState.cameraX,
+        y - canvasState.cameraY,
+      ]);
 
       // Add drawing path to the layers
       setLayers([
@@ -272,8 +327,6 @@ export function Canvas() {
         },
       ]);
     }
-
-
 
     setCanvasState({
       ...canvasState,
