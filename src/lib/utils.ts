@@ -19,9 +19,10 @@ export function useTheme() {
 }
 
 export function isPointInLayer(x: number, y: number, layer: Layer): boolean {
+  return x >= layer.x - 5 && x <= layer.x + layer.width + 5 && y >= layer.y - 5 && y <= layer.y + layer.height + 5;
+
   const dx = x - layer.x + layer.width / 2;
   const dy = y - layer.y + layer.height / 2;
-  return x >= layer.x && x <= layer.x + layer.width && y >= layer.y && y <= layer.y + layer.height;
   
   switch(layer.type) {
     case LayerType.Rectangle:
@@ -50,4 +51,18 @@ export function getBoundingBox(points: number[][]) {
   const minY = Math.min(...ys);
   const maxY = Math.max(...ys);
   return { x: minX, y: minY, width: maxX - minX, height: maxY - minY };
+}
+
+export function checkIfMouseOverResizeHandlers(mouseX: number, mouseY: number, layer: Layer) {
+  const { x: layerX, y: layerY, width, height } = layer;
+  const resizeHandlers = {
+    topLeft: { x: layerX, y: layerY },
+    topRight: { x: layerX + width, y: layerY },
+    bottomLeft: { x: layerX, y: layerY + height },
+    bottomRight: { x: layerX + width, y: layerY + height },
+  };
+
+  return Object.entries(resizeHandlers).find(([_, { x: handlerX, y: handlerY }]) => {
+    return mouseX >= handlerX - 5 && mouseX <= handlerX + 5 && mouseY >= handlerY - 5 && mouseY <= handlerY + 5;
+  });
 }

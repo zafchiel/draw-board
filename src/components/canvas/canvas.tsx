@@ -1,6 +1,11 @@
 import { draw, reDraw } from "@/lib/drawings";
 import { CanvasMode } from "@/lib/types";
-import { getBoundingBox, isPointInLayer, useTheme } from "@/lib/utils";
+import {
+  checkIfMouseOverResizeHandlers,
+  getBoundingBox,
+  isPointInLayer,
+  useTheme,
+} from "@/lib/utils";
 import { CanvasStateContext } from "@/providers/canvas-state-provider";
 import { useContext, useEffect, useRef, useState } from "react";
 
@@ -9,6 +14,8 @@ export function Canvas() {
     useContext(CanvasStateContext);
   const [pathPoints, setPathPoints] = useState<number[][] | null>(null);
   const [isDrawingPath, setIsDrawingPath] = useState(false);
+  const [resizingCorner, setResizingCorner] = useState<string | null>(null);
+
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const tempCanvasRef = useRef<HTMLCanvasElement>(null);
   const { theme } = useTheme();
@@ -102,14 +109,35 @@ export function Canvas() {
         )
       );
       if (selectedLayerIndex !== -1) {
+        // Check if mouse is over resizing handlers
+        const selectedLayer = layers[selectedLayerIndex];
+        const clickedCorner = checkIfMouseOverResizeHandlers(
+          currentX - canvasState.cameraX,
+          currentY - canvasState.cameraY,
+          selectedLayer
+        );
+        if (clickedCorner !== undefined) {
+          setCanvasState({
+            ...canvasState,
+            mode: CanvasMode.Resizing,
+            currentLayer: selectedLayer,
+            originX: currentX,
+            originY: currentY,
+          });
+          setResizingCorner(clickedCorner[0]);
+          return;
+        }
+
+        // Move layer
         setCanvasState({
           ...canvasState,
           mode: CanvasMode.Moving,
-          currentLayer: layers[selectedLayerIndex],
+          currentLayer: selectedLayer,
           originX: currentX,
           originY: currentY,
         });
 
+        // Repaint active layer
         setLayers(
           layers.map((layer, index) => {
             if (index === selectedLayerIndex) {
@@ -258,6 +286,15 @@ export function Canvas() {
     const ctx = canvas.getContext("2d");
     const tempCtx = tempCanvas.getContext("2d");
     if (!ctx || !tempCtx) return;
+
+    if (canvasState.mode === CanvasMode.Resizing && resizingCorner !== null) {
+      setResizingCorner(null);
+      setCanvasState({
+        ...canvasState,
+        mode: CanvasMode.Selecting,
+      });
+      return;
+    }
 
     if (canvasState.mode === CanvasMode.Moving) {
       setCanvasState({

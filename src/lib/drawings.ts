@@ -89,10 +89,10 @@ export function reDraw({
     if (layer.isActive) {
       // Draw selection rectangle
       draw({
-        x: layer.x - 10,
-        y: layer.y - 10,
-        width: layer.width + 20,
-        height: layer.height + 20,
+        x: layer.x - 5,
+        y: layer.y - 5,
+        width: layer.width + 10,
+        height: layer.height + 10,
         stroke: "#605e87",
         fill: layer.fill,
         points: layer.points,
@@ -102,8 +102,8 @@ export function reDraw({
 
       // Draw resize handlers
       draw({
-        x: layer.x - 15,
-        y: layer.y - 15,
+        x: layer.x - 10,
+        y: layer.y - 10,
         width: 10,
         height: 10,
         stroke: "#605e87",
@@ -113,8 +113,8 @@ export function reDraw({
         canvas,
       });
       draw({
-        x: layer.x + 5 + layer.width,
-        y: layer.y - 15,
+        x: layer.x + layer.width,
+        y: layer.y - 10,
         width: 10,
         height: 10,
         stroke: "#605e87",
@@ -124,8 +124,8 @@ export function reDraw({
         canvas,
       });
       draw({
-        x: layer.x - 15,
-        y: layer.y + 5 + layer.height,
+        x: layer.x - 10,
+        y: layer.y + layer.height,
         width: 10,
         height: 10,
         stroke: "#605e87",
@@ -135,8 +135,8 @@ export function reDraw({
         canvas,
       });
       draw({
-        x: layer.x + 5 + layer.width,
-        y: layer.y + 5 + layer.height,
+        x: layer.x + layer.width,
+        y: layer.y + layer.height,
         width: 10,
         height: 10,
         stroke: "#605e87",
