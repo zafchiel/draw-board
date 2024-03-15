@@ -19,7 +19,7 @@ export function useTheme() {
 }
 
 export function isPointInLayer(x: number, y: number, layer: Layer): boolean {
-  return x >= layer.x - 5 && x <= layer.x + layer.width + 5 && y >= layer.y - 5 && y <= layer.y + layer.height + 5;
+  return x >= layer.x - 10 && x <= layer.x + layer.width + 10 && y >= layer.y - 10 && y <= layer.y + layer.height + 10;
 
   const dx = x - layer.x + layer.width / 2;
   const dy = y - layer.y + layer.height / 2;
@@ -62,7 +62,7 @@ export function checkIfMouseOverResizeHandlers(mouseX: number, mouseY: number, l
     bottomRight: { x: layerX + width, y: layerY + height },
   };
 
-  return Object.entries(resizeHandlers).find(([_, { x: handlerX, y: handlerY }]) => {
-    return mouseX >= handlerX - 5 && mouseX <= handlerX + 5 && mouseY >= handlerY - 5 && mouseY <= handlerY + 5;
+  return Object.entries(resizeHandlers).find(([ , { x: handlerX, y: handlerY }]) => {
+    return mouseX >= handlerX - 10 && mouseX <= handlerX + 10 && mouseY >= handlerY - 10 && mouseY <= handlerY + 10;
   });
 }

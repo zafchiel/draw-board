@@ -184,6 +184,43 @@ export function Canvas() {
   };
 
   const onPointerMove = (event: React.PointerEvent) => {
+    if(canvasState.mode === CanvasMode.Resizing && resizingCorner !== null) {
+      // Resize the layer
+      const currentX = event.pageX;
+      const currentY = event.pageY;
+      const selectedLayer = canvasState.currentLayer;
+      if (!selectedLayer) return;
+
+      // const tempCanvas = tempCanvasRef.current;
+      // if (!tempCanvas) return;
+      // const tempCanvasCtx = tempCanvas.getContext("2d");
+      // if (!tempCanvasCtx) return;
+
+      // tempCanvasCtx.clearRect(0, 0, tempCanvas.width, tempCanvas.height); // Clear the temporary canvas
+
+      const width = currentX - canvasState.originX;
+      const height = currentY - canvasState.originY;
+
+      setLayers(layers.map((layer) => {
+        if (layer.id === selectedLayer.id) {
+          return {
+            ...layer,
+            width: resizingCorner === "topLeft" || resizingCorner === "bottomLeft" ? layer.width - width : layer.width + width,
+            height: resizingCorner === "topLeft" || resizingCorner === "topRight" ? layer.height - height : layer.height + height,
+            x: resizingCorner === "topLeft" || resizingCorner === "bottomLeft" ? layer.x + width : layer.x,
+            y: resizingCorner === "topLeft" || resizingCorner === "topRight" ? layer.y + height : layer.y,
+          };
+        } else {
+          return layer;
+        }
+      }))
+
+      setCanvasState({
+        ...canvasState, originX: currentX, originY: currentY
+      })
+
+    }
+    
     if (canvasState.mode === CanvasMode.Moving) {
       const moveX = event.pageX - canvasState.originX;
       const moveY = event.pageY - canvasState.originY;
