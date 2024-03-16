@@ -86,7 +86,7 @@ export function reDraw({
   ctx.translate(cameraX, cameraY);
 
   layers.forEach((layer) => {
-    if (layer.isActive) {
+    if (layer.isActive) {      
       // Draw selection rectangle
       draw({
         x: layer.x - 5,

@@ -185,7 +185,7 @@ export function Canvas() {
   };
 
   const onPointerMove = (event: React.PointerEvent) => {
-    if(canvasState.mode === CanvasMode.Resizing && resizingCorner !== null) {
+    if (canvasState.mode === CanvasMode.Resizing && resizingCorner !== null) {
       // Resize the layer
       const currentX = event.pageX;
       const currentY = event.pageY;
@@ -202,30 +202,37 @@ export function Canvas() {
       // const moveX = currentX - canvasState.originX;
       // const moveY = currentY - canvasState.originY;
 
-      const newBounds = resizeBounds(selectedLayer, resizingCorner, currentX - canvasState.cameraX, currentY - canvasState.cameraY);
+      const newBounds = resizeBounds(
+        selectedLayer,
+        resizingCorner,
+        currentX - canvasState.cameraX,
+        currentY - canvasState.cameraY
+      );
       // console.log(newBounds)
       // console.log(moveX, moveY)
-
-      setLayers(layers.map((layer) => {
-        if (layer.id === selectedLayer.id) {
-          return {
-            ...layer,
-            x: newBounds.x,
-            y: newBounds.y,
-            width: newBounds.width,
-            height: newBounds.height,
-          };
-        } else {
-          return layer;
-        }
-      }))
+        setLayers(
+          layers.map((layer) => {
+            if (layer.id === selectedLayer.id) {
+              return {
+                ...layer,
+                x: newBounds.x,
+                y: newBounds.y,
+                width: newBounds.width,
+                height: newBounds.height,
+              };
+            } else {
+              return layer;
+            }
+          })
+        );
 
       setCanvasState({
-        ...canvasState, originX: currentX, originY: currentY
-      })
-
+        ...canvasState,
+        originX: currentX,
+        originY: currentY,
+      });
     }
-    
+
     if (canvasState.mode === CanvasMode.Moving) {
       const moveX = event.pageX - canvasState.originX;
       const moveY = event.pageY - canvasState.originY;

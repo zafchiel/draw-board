@@ -36,7 +36,7 @@ export function Toolbar() {
 
       <ToolbarButton
         name="Select"
-        selected={canvasState.mode === CanvasMode.Selecting}
+        selected={canvasState.mode === CanvasMode.Selecting || canvasState.mode === CanvasMode.Resizing}
         onClick={() => {
           setCanvasState({
             ...canvasState,
