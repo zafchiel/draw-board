@@ -4,6 +4,7 @@ import {
   checkIfMouseOverResizeHandlers,
   getBoundingBox,
   isPointInLayer,
+  resizeBounds,
   useTheme,
 } from "@/lib/utils";
 import { CanvasStateContext } from "@/providers/canvas-state-provider";
@@ -116,7 +117,7 @@ export function Canvas() {
           currentY - canvasState.cameraY,
           selectedLayer
         );
-        if (clickedCorner !== undefined) {
+        if (clickedCorner === "bottomRight") {
           setCanvasState({
             ...canvasState,
             mode: CanvasMode.Resizing,
@@ -124,7 +125,7 @@ export function Canvas() {
             originX: currentX,
             originY: currentY,
           });
-          setResizingCorner(clickedCorner[0]);
+          setResizingCorner(clickedCorner);
           return;
         }
 
@@ -198,17 +199,21 @@ export function Canvas() {
 
       // tempCanvasCtx.clearRect(0, 0, tempCanvas.width, tempCanvas.height); // Clear the temporary canvas
 
-      const width = currentX - canvasState.originX;
-      const height = currentY - canvasState.originY;
+      // const moveX = currentX - canvasState.originX;
+      // const moveY = currentY - canvasState.originY;
+
+      const newBounds = resizeBounds(selectedLayer, resizingCorner, currentX - canvasState.cameraX, currentY - canvasState.cameraY);
+      // console.log(newBounds)
+      // console.log(moveX, moveY)
 
       setLayers(layers.map((layer) => {
         if (layer.id === selectedLayer.id) {
           return {
             ...layer,
-            width: resizingCorner === "topLeft" || resizingCorner === "bottomLeft" ? layer.width - width : layer.width + width,
-            height: resizingCorner === "topLeft" || resizingCorner === "topRight" ? layer.height - height : layer.height + height,
-            x: resizingCorner === "topLeft" || resizingCorner === "bottomLeft" ? layer.x + width : layer.x,
-            y: resizingCorner === "topLeft" || resizingCorner === "topRight" ? layer.y + height : layer.y,
+            x: newBounds.x,
+            y: newBounds.y,
+            width: newBounds.width,
+            height: newBounds.height,
           };
         } else {
           return layer;
