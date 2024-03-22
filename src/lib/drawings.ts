@@ -44,25 +44,26 @@ export function draw({
       });
       break;
     case LayerType.Arrow: {
-      rc.line(x, y, x + width, y + height, {
+      const p2x = x + width;
+      const p2y = y + height;
+
+      rc.line(x, y, p2x, p2y, {
         stroke,
         roughness: 0.2,
       });
-      const p2x = x + width;
-      const p2y = y + height;
       
       const lineAngle = Math.atan2(y - p2y, x - p2x);
       const delta = Math.PI / 6;
 
 
-      const x1 = x + width + 20 * Math.cos(lineAngle + delta);
-      const y1 = y + height + 20 * Math.sin(lineAngle + delta);
+      const x1 = p2x + 20 * Math.cos(lineAngle + delta);
+      const y1 = p2y + 20 * Math.sin(lineAngle + delta);
 
-      const x2 = x + width + 20 * Math.cos(lineAngle - delta);
-      const y2 = y + height + 20 * Math.sin(lineAngle - delta);
+      const x2 = p2x + 20 * Math.cos(lineAngle - delta);
+      const y2 = p2y + 20 * Math.sin(lineAngle - delta);
       
-      rc.line(x + width, y + height, x1, y1, { stroke, roughness: 0.2 });
-      rc.line(x + width, y + height, x2, y2, { stroke, roughness: 0.2 });
+      rc.line(p2x, p2y, x1, y1, { stroke, roughness: 0.2 });
+      rc.line(p2x, p2y, x2, y2, { stroke, roughness: 0.2 });
       break;
     }
     case LayerType.Path:
