@@ -48,8 +48,12 @@ export function draw({
         stroke,
         roughness: 0.2,
       });
-      const lineAngle = Math.atan2(y - height + y, x - width + x);
+      const p2x = x + width;
+      const p2y = y + height;
+      
+      const lineAngle = Math.atan2(y - p2y, x - p2x);
       const delta = Math.PI / 6;
+
 
       const x1 = x + width + 20 * Math.cos(lineAngle + delta);
       const y1 = y + height + 20 * Math.sin(lineAngle + delta);
