@@ -13,7 +13,7 @@ import { useContext, useEffect, useRef, useState } from "react";
 export function Canvas() {
   const { canvasState, setCanvasState, layers, setLayers } =
     useContext(CanvasStateContext);
-  const [pathPoints, setPathPoints] = useState<number[][] | null>(null);
+  const [pathPoints, setPathPoints] = useState<[number, number][] | null>(null);
   const [isDrawingPath, setIsDrawingPath] = useState(false);
   const [resizingCorner, setResizingCorner] = useState<string | null>(null);
 
@@ -173,7 +173,8 @@ export function Canvas() {
     else if (
       canvasState.selectedLayerType === "rectangle" ||
       canvasState.selectedLayerType === "ellipse" ||
-      canvasState.selectedLayerType === "line"
+      canvasState.selectedLayerType === "line" ||
+      canvasState.selectedLayerType === "arrow"
     ) {
       setCanvasState({
         ...canvasState,
@@ -247,7 +248,7 @@ export function Canvas() {
               const movedPoints = layer.points.map(([x, y]) => [
                 x + moveX,
                 y + moveY,
-              ]);
+              ] as [number, number]);
               return {
                 ...layer,
                 x: layer.x + moveX,

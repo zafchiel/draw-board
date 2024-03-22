@@ -1,8 +1,5 @@
 import { LayerType, type Layer } from "./types";
 import rough from "roughjs";
-import { pointsToSvgPathWithHandDrawnEffect } from "./utils";
-
-const gen = rough.generator();
 
 type DrawParams = {
   x: number;
@@ -12,7 +9,7 @@ type DrawParams = {
   stroke: string;
   fill: string;
   canvas: HTMLCanvasElement;
-  points: number[][] | null;
+  points: [number, number][] | null;
   type: LayerType;
 };
 
@@ -28,27 +25,44 @@ export function draw({
   type,
 }: DrawParams) {
   const rc = rough.canvas(canvas);
-  let drawing;
 
   switch (type) {
     case LayerType.Rectangle:
-      drawing = gen.rectangle(x, y, width, height, { stroke, fill });
+      rc.rectangle(x, y, width, height, { stroke, fill });
       break;
     case LayerType.Ellipse:
-      drawing = gen.ellipse(x + width / 2, y + height / 2, width, height, {
+      rc.ellipse(x + width / 2, y + height / 2, width, height, {
         stroke,
         fill,
         roughness: 0.2,
       });
       break;
     case LayerType.Line:
-      drawing = gen.line(x, y, x + width, y + height, {
+      rc.line(x, y, x + width, y + height, {
         stroke,
         roughness: 0.2,
       });
       break;
+    case LayerType.Arrow: {
+      rc.line(x, y, x + width, y + height, {
+        stroke,
+        roughness: 0.2,
+      });
+      const lineAngle = Math.atan2(y - height + y, x - width + x);
+      const delta = Math.PI / 6;
+
+      const x1 = x + width + 20 * Math.cos(lineAngle + delta);
+      const y1 = y + height + 20 * Math.sin(lineAngle + delta);
+
+      const x2 = x + width + 20 * Math.cos(lineAngle - delta);
+      const y2 = y + height + 20 * Math.sin(lineAngle - delta);
+      
+      rc.line(x + width, y + height, x1, y1, { stroke, roughness: 0.2 });
+      rc.line(x + width, y + height, x2, y2, { stroke, roughness: 0.2 });
+      break;
+    }
     case LayerType.Path:
-      drawing = gen.path(pointsToSvgPathWithHandDrawnEffect(points!), {
+      rc.linearPath(points!, {
         stroke,
         roughness: 0.8,
         simplification: 1,
@@ -57,9 +71,6 @@ export function draw({
     default:
       break;
   }
-
-  if (!drawing) return;
-  rc.draw(drawing);
 }
 
 type RedrawParams = {
