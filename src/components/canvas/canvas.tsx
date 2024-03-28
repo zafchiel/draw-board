@@ -374,7 +374,7 @@ export function Canvas() {
       const cameraMovedPoints = pathPoints.map(([x, y]) => [
         x - canvasState.cameraX,
         y - canvasState.cameraY,
-      ]);
+      ]) as [number, number][];
 
       // Add drawing path to the layers
       setLayers([
