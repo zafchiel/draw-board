@@ -150,17 +150,19 @@ export function reDraw({
       //   type: LayerType.Ellipse,
       //   canvas,
       // });
-      draw({
-        x: layer.x + layer.width,
-        y: layer.y + layer.height,
-        width: 10,
-        height: 10,
-        stroke: "#605e87",
-        fill: layer.fill,
-        points: null,
-        type: LayerType.Ellipse,
-        canvas,
-      });
+      if (layer.type !== LayerType.Path) {
+        draw({
+          x: layer.x + layer.width,
+          y: layer.y + layer.height,
+          width: 10,
+          height: 10,
+          stroke: "#605e87",
+          fill: layer.fill,
+          points: null,
+          type: LayerType.Ellipse,
+          canvas,
+        });
+      }
     }
 
     // Draw the layer

@@ -117,7 +117,7 @@ export function Canvas() {
           currentY - canvasState.cameraY,
           selectedLayer
         );
-        if (clickedCorner === "bottomRight") {
+        if (clickedCorner === "bottomRight"  && canvasState.selectedLayerType !== LayerType.Path) {
           setCanvasState({
             ...canvasState,
             mode: CanvasMode.Resizing,
