@@ -1,5 +1,5 @@
 import { draw, reDraw } from "@/lib/drawings";
-import { CanvasMode } from "@/lib/types";
+import { CanvasMode, LayerType } from "@/lib/types";
 import {
   checkIfMouseOverResizeHandlers,
   getBoundingBox,
