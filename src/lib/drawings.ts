@@ -28,7 +28,7 @@ export function draw({
   const ctx = canvas.getContext('2d');
   if(!ctx) return;
   ctx.font = '18px system-ui';
-  ctx.textAlign = 'center';
+  // ctx.textAlign = 'center';
   ctx.textBaseline = 'middle';
   ctx.fillStyle = stroke;
 

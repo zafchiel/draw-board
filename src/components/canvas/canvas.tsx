@@ -8,7 +8,7 @@ import {
   useTheme,
 } from "@/lib/utils";
 import { CanvasStateContext } from "@/providers/canvas-state-provider";
-import { useContext, useEffect, useRef, useState } from "react";
+import { createElement, useContext, useEffect, useRef, useState } from "react";
 
 export function Canvas() {
   const { canvasState, setCanvasState, layers, setLayers } =
@@ -171,6 +171,14 @@ export function Canvas() {
           })
         );
       }
+    } else if (canvasState.selectedLayerType === LayerType.Text) {
+      // Add text area
+      const textArea = document.createElement("textarea");
+      textArea.className = "canvas-text-area";
+      textArea.style.top = `${currentY}px`;
+      textArea.style.left = `${currentX}px`;
+      document.body.appendChild(textArea);
+      textArea.focus();
     }
     // Activate inserting new layer mode
     else if (canvasState.selectedLayerType !== null) {
