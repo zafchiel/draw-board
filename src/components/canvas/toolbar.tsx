@@ -1,4 +1,5 @@
 import {
+  ALargeSmall,
   Circle,
   Hand,
   Minus,
@@ -32,6 +33,20 @@ export function Toolbar() {
         }}
       >
         <Hand size={18} />
+      </ToolbarButton>
+
+      <ToolbarButton
+        name="Text"
+        selected={canvasState.selectedLayerType === LayerType.Text}
+        onClick={() => {
+          setCanvasState({
+            ...canvasState,
+            mode: CanvasMode.None,
+            selectedLayerType: LayerType.Text,
+          });
+        }}
+      >
+        <ALargeSmall size={18} />
       </ToolbarButton>
 
       <ToolbarButton

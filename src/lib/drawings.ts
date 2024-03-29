@@ -25,6 +25,11 @@ export function draw({
   type,
 }: DrawParams) {
   const rc = rough.canvas(canvas);
+  const ctx = canvas.getContext('2d');
+  if(!ctx) return;
+  ctx.font = 'italic 18px Arial';
+  ctx.textAlign = 'center';
+  ctx. textBaseline = 'middle';
 
   switch (type) {
     case LayerType.Rectangle:
@@ -72,6 +77,9 @@ export function draw({
         roughness: 0.8,
         simplification: 1,
       });
+      break;
+    case LayerType.Text:
+      ctx.fillText('Hello World', x, y);
       break;
     default:
       break;

@@ -117,7 +117,10 @@ export function Canvas() {
           currentY - canvasState.cameraY,
           selectedLayer
         );
-        if (clickedCorner === "bottomRight"  && canvasState.selectedLayerType !== LayerType.Path) {
+        if (
+          clickedCorner === "bottomRight" &&
+          canvasState.selectedLayerType !== LayerType.Path
+        ) {
           setCanvasState({
             ...canvasState,
             mode: CanvasMode.Resizing,
@@ -170,12 +173,7 @@ export function Canvas() {
       }
     }
     // Activate inserting new layer mode
-    else if (
-      canvasState.selectedLayerType === "rectangle" ||
-      canvasState.selectedLayerType === "ellipse" ||
-      canvasState.selectedLayerType === "line" ||
-      canvasState.selectedLayerType === "arrow"
-    ) {
+    else if (canvasState.selectedLayerType !== null) {
       setCanvasState({
         ...canvasState,
         mode: CanvasMode.Inserting,
@@ -211,21 +209,21 @@ export function Canvas() {
       );
       // console.log(newBounds)
       // console.log(moveX, moveY)
-        setLayers(
-          layers.map((layer) => {
-            if (layer.id === selectedLayer.id) {
-              return {
-                ...layer,
-                x: newBounds.x,
-                y: newBounds.y,
-                width: newBounds.width,
-                height: newBounds.height,
-              };
-            } else {
-              return layer;
-            }
-          })
-        );
+      setLayers(
+        layers.map((layer) => {
+          if (layer.id === selectedLayer.id) {
+            return {
+              ...layer,
+              x: newBounds.x,
+              y: newBounds.y,
+              width: newBounds.width,
+              height: newBounds.height,
+            };
+          } else {
+            return layer;
+          }
+        })
+      );
 
       setCanvasState({
         ...canvasState,
@@ -245,10 +243,9 @@ export function Canvas() {
         layers.map((layer) => {
           if (layer.id === selectedLayerId) {
             if (layer.points) {
-              const movedPoints = layer.points.map(([x, y]) => [
-                x + moveX,
-                y + moveY,
-              ] as [number, number]);
+              const movedPoints = layer.points.map(
+                ([x, y]) => [x + moveX, y + moveY] as [number, number]
+              );
               return {
                 ...layer,
                 x: layer.x + moveX,
