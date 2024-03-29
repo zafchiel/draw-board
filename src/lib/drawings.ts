@@ -2,28 +2,15 @@ import { LayerType, type Layer } from "./types";
 import rough from "roughjs";
 
 type DrawParams = {
-  x: number;
-  y: number;
-  width: number;
-  height: number;
-  stroke: string;
-  fill: string;
+  layer: Layer;
   canvas: HTMLCanvasElement;
-  points: [number, number][] | null;
-  type: LayerType;
 };
 
 export function draw({
-  x,
-  y,
-  width,
-  height,
-  stroke,
-  fill,
-  canvas,
-  points,
-  type,
+  layer, canvas
 }: DrawParams) {
+  const { x, y, width, height, stroke, fill, points, innerText, type } = layer;
+  
   const rc = rough.canvas(canvas);
   const ctx = canvas.getContext('2d');
   if(!ctx) return;
@@ -80,7 +67,8 @@ export function draw({
       });
       break;
     case LayerType.Text:
-      ctx.fillText('Hello World', x, y);
+      if(!innerText) return;
+      ctx.fillText(innerText, x, y);
       break;
     default:
       break;
@@ -114,14 +102,7 @@ export function reDraw({
     if (layer.isActive) {      
       // Draw selection rectangle
       draw({
-        x: layer.x - 5,
-        y: layer.y - 5,
-        width: layer.width + 10,
-        height: layer.height + 10,
-        stroke: "#605e87",
-        fill: layer.fill,
-        points: layer.points,
-        type: LayerType.Rectangle,
+        layer,
         canvas,
       });
 
@@ -161,14 +142,7 @@ export function reDraw({
       // });
       if (layer.type !== LayerType.Path) {
         draw({
-          x: layer.x + layer.width,
-          y: layer.y + layer.height,
-          width: 10,
-          height: 10,
-          stroke: "#605e87",
-          fill: layer.fill,
-          points: null,
-          type: LayerType.Ellipse,
+          layer,
           canvas,
         });
       }
@@ -176,14 +150,7 @@ export function reDraw({
 
     // Draw the layer
     draw({
-      x: layer.x,
-      y: layer.y,
-      width: layer.width,
-      height: layer.height,
-      stroke: stroke,
-      fill: layer.fill,
-      points: layer.points,
-      type: layer.type,
+      layer,
       canvas,
     });
   });

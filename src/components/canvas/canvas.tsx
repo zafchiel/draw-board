@@ -8,7 +8,7 @@ import {
   useTheme,
 } from "@/lib/utils";
 import { CanvasStateContext } from "@/providers/canvas-state-provider";
-import { createElement, useContext, useEffect, useRef, useState } from "react";
+import { useContext, useEffect, useRef, useState } from "react";
 
 export function Canvas() {
   const { canvasState, setCanvasState, layers, setLayers } =
@@ -171,7 +171,16 @@ export function Canvas() {
           })
         );
       }
-    } else if (canvasState.selectedLayerType === LayerType.Text) {
+    } 
+    // New text
+    else if (canvasState.selectedLayerType === LayerType.Text && canvasState.mode === CanvasMode.None) {
+      setCanvasState({
+        ...canvasState,
+        mode: CanvasMode.Inserting,
+        originX: currentX,
+        originY: currentY,
+      })
+      
       // Add text area
       const textArea = document.createElement("textarea");
       textArea.className = "canvas-text-area";
@@ -306,7 +315,7 @@ export function Canvas() {
     // Drawing the preview layer
     if (
       canvasState.mode === CanvasMode.Inserting &&
-      canvasState.selectedLayerType !== null
+      canvasState.selectedLayerType !== null && canvasState.selectedLayerType !== LayerType.Text
     ) {
       const tempCanvas = tempCanvasRef.current;
       if (!tempCanvas) return;
@@ -320,15 +329,19 @@ export function Canvas() {
       const height = event.pageY - canvasState.originY;
 
       draw({
-        x: canvasState.originX,
-        y: canvasState.originY,
-        width,
-        height,
-        stroke: theme === "light" ? "black" : "white",
-        fill: "transparent",
+        layer: {
+          x: canvasState.originX,
+          y: canvasState.originY,
+          width,
+          height,
+          stroke: theme === "light" ? "black" : "white",
+          fill: "transparent",
+          points: null,
+          type: canvasState.selectedLayerType,
+          id: crypto.randomUUID(),
+          isActive: false,
+        },
         canvas: tempCanvas,
-        points: null,
-        type: canvasState.selectedLayerType,
       });
     }
   };
@@ -341,6 +354,13 @@ export function Canvas() {
     const ctx = canvas.getContext("2d");
     const tempCtx = tempCanvas.getContext("2d");
     if (!ctx || !tempCtx) return;
+
+    if (canvasState.mode === CanvasMode.Inserting && canvasState.selectedLayerType === LayerType.Text) {
+      setCanvasState({
+        ...canvasState,
+        mode: CanvasMode.None,
+      })
+    }
 
     if (canvasState.mode === CanvasMode.Resizing && resizingCorner !== null) {
       setResizingCorner(null);

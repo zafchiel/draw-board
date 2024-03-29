@@ -78,7 +78,8 @@
 
 .canvas-text-area {
   position: fixed;
-  border: none;
+  border: 1px solid violet;
+  border-radius: 0.5rem;
   overflow: auto;
   outline: none;
   resize: none;
