@@ -27,9 +27,10 @@ export function draw({
   const rc = rough.canvas(canvas);
   const ctx = canvas.getContext('2d');
   if(!ctx) return;
-  ctx.font = 'italic 18px Arial';
+  ctx.font = '18px system-ui';
   ctx.textAlign = 'center';
-  ctx. textBaseline = 'middle';
+  ctx.textBaseline = 'middle';
+  ctx.fillStyle = stroke;
 
   switch (type) {
     case LayerType.Rectangle:
