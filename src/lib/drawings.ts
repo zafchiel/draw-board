@@ -77,7 +77,6 @@ export function draw({
 
 type RedrawParams = {
   layers: Layer[];
-  stroke: string;
   cameraX: number;
   cameraY: number;
   canvas: HTMLCanvasElement;
@@ -88,7 +87,6 @@ export function reDraw({
   cameraY,
   canvas,
   layers,
-  stroke,
 }: RedrawParams) {
   // const rc = rough.canvas(canvas);
   const ctx = canvas.getContext("2d");
