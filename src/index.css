@@ -76,6 +76,10 @@
   }
 }
 
+body, html {
+  overflow: hidden;
+}
+
 .canvas-text-area {
   position: fixed;
   border: 1px solid violet;
