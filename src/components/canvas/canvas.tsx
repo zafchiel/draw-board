@@ -9,6 +9,7 @@ import {
 } from "@/lib/utils";
 import { CanvasStateContext } from "@/providers/canvas-state-provider";
 import { useContext, useEffect, useRef, useState } from "react";
+import { TextArea } from "./text-area";
 
 export function Canvas() {
   const { canvasState, setCanvasState, layers, setLayers } =
@@ -19,6 +20,7 @@ export function Canvas() {
 
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const tempCanvasRef = useRef<HTMLCanvasElement>(null);
+  
   const { theme } = useTheme();
 
   // Paint canvas
@@ -80,7 +82,7 @@ export function Canvas() {
       tempCanvasCtx.clearRect(0, 0, tempCanvas.width, tempCanvas.height);
       tempCanvasCtx.lineCap = "round";
       tempCanvasCtx.strokeStyle = theme === "light" ? "black" : "white";
-      tempCanvasCtx.lineWidth = 2;
+      tempCanvasCtx.lineWidth = 1;
       tempCanvasCtx.beginPath();
       return;
     }
@@ -178,15 +180,7 @@ export function Canvas() {
         mode: CanvasMode.Inserting,
         originX: currentX,
         originY: currentY,
-      })
-      
-      // Add text area
-      const textArea = document.createElement("textarea");
-      textArea.className = "canvas-text-area";
-      textArea.style.top = `${currentY}px`;
-      textArea.style.left = `${currentX}px`;
-      document.body.appendChild(textArea);
-      textArea.focus();
+      }) 
     }
     // Activate inserting new layer mode
     else if (canvasState.selectedLayerType !== null) {
@@ -355,10 +349,11 @@ export function Canvas() {
     if (!ctx || !tempCtx) return;
 
     if (canvasState.mode === CanvasMode.Inserting && canvasState.selectedLayerType === LayerType.Text) {
-      setCanvasState({
-        ...canvasState,
-        mode: CanvasMode.None,
-      })
+      // setCanvasState({
+      //   ...canvasState,
+      //   mode: CanvasMode.None,
+      // })
+      return;
     }
 
     if (canvasState.mode === CanvasMode.Resizing && resizingCorner !== null) {
@@ -473,6 +468,8 @@ export function Canvas() {
         height={window.innerHeight}
         style={{ position: "absolute", top: 0, left: 0, pointerEvents: "none" }}
       />
+
+      <TextArea left={canvasState.originX} top={canvasState.originY} visible={canvasState.mode === CanvasMode.Inserting && canvasState.selectedLayerType === LayerType.Text} />
     </>
   );
 }
