@@ -78,6 +78,8 @@
 
 body, html {
   overflow: hidden;
+  font-size: 18px;
+  font-weight: 400;
 }
 
 .canvas-text-area {
@@ -88,4 +90,5 @@ body, html {
   outline: none;
   resize: none;
   background-color: transparent;
+  margin-top: -1rem;
 }
