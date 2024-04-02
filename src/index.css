@@ -84,10 +84,11 @@ body, html {
 
 .canvas-text-area {
   position: fixed;
-  border-radius: 0.5rem;
+  border: none;
   overflow: auto;
   outline: none;
   resize: none;
   background-color: transparent;
   margin-top: -1rem;
+  width: 100vw;;
 }
