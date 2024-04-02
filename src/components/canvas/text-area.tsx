@@ -19,8 +19,6 @@ export const TextArea = (props: TextAreaProps) => {
 
   useEffect(() => {
     if (text !== "") {
-      console.log("Text: ", text);
-
       setLayers([
         ...layers,
         {

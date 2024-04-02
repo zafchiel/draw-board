@@ -84,7 +84,6 @@ body, html {
 
 .canvas-text-area {
   position: fixed;
-  border: 1px solid violet;
   border-radius: 0.5rem;
   overflow: auto;
   outline: none;
