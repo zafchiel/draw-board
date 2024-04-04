@@ -31,6 +31,7 @@ export function Canvas() {
       cameraY: canvasState.cameraY,
       canvas: canvasRef.current,
       layers,
+      stroke: canvasState.currentStrokeColor
     });
   }, [
     layers,

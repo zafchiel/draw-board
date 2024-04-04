@@ -77,9 +77,10 @@ type RedrawParams = {
   cameraX: number;
   cameraY: number;
   canvas: HTMLCanvasElement;
+  stroke: string;
 };
 
-export function reDraw({ cameraX, cameraY, canvas, layers }: RedrawParams) {
+export function reDraw({ cameraX, cameraY, canvas, layers, stroke }: RedrawParams) {
   // const rc = rough.canvas(canvas);
   const ctx = canvas.getContext("2d");
   if (!ctx) return;
@@ -99,7 +100,7 @@ export function reDraw({ cameraX, cameraY, canvas, layers }: RedrawParams) {
           width: layer.width + 20,
           height: layer.height + 20,
           stroke: "#605e87",
-          fill: layer.fill,
+          fill: "transparent",
           points: null,
           type: LayerType.Rectangle,
           isActive: false
@@ -151,7 +152,7 @@ export function reDraw({ cameraX, cameraY, canvas, layers }: RedrawParams) {
             width: 10,
             height: 10,
             stroke: "#605e87",
-            fill: layer.fill,
+            fill: "transparent",
             points: null,
             type: LayerType.Ellipse,
             isActive: false,
@@ -163,7 +164,10 @@ export function reDraw({ cameraX, cameraY, canvas, layers }: RedrawParams) {
 
     // Draw the layer
     draw({
-      layer,
+      layer: {
+        ...layer,
+        stroke
+      },
       canvas,
     });
   });
