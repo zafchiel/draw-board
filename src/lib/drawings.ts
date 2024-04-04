@@ -6,17 +6,15 @@ type DrawParams = {
   canvas: HTMLCanvasElement;
 };
 
-export function draw({
-  layer, canvas
-}: DrawParams) {
+export function draw({ layer, canvas }: DrawParams) {
   const { x, y, width, height, stroke, fill, points, innerText, type } = layer;
-  
+
   const rc = rough.canvas(canvas);
-  const ctx = canvas.getContext('2d');
-  if(!ctx) return;
-  ctx.font = '18px system-ui';
+  const ctx = canvas.getContext("2d");
+  if (!ctx) return;
+  ctx.font = "18px system-ui";
   // ctx.textAlign = 'center';
-  ctx.textBaseline = 'middle';
+  ctx.textBaseline = "middle";
   ctx.fillStyle = stroke;
 
   switch (type) {
@@ -44,17 +42,16 @@ export function draw({
         stroke,
         roughness: 0.2,
       });
-      
+
       const lineAngle = Math.atan2(y - p2y, x - p2x);
       const delta = Math.PI / 6;
-
 
       const x1 = p2x + 20 * Math.cos(lineAngle + delta);
       const y1 = p2y + 20 * Math.sin(lineAngle + delta);
 
       const x2 = p2x + 20 * Math.cos(lineAngle - delta);
       const y2 = p2y + 20 * Math.sin(lineAngle - delta);
-      
+
       rc.line(p2x, p2y, x1, y1, { stroke, roughness: 0.2 });
       rc.line(p2x, p2y, x2, y2, { stroke, roughness: 0.2 });
       break;
@@ -67,7 +64,7 @@ export function draw({
       });
       break;
     case LayerType.Text:
-      if(!innerText) return;
+      if (!innerText) return;
       ctx.fillText(innerText, x, y);
       break;
     default:
@@ -82,12 +79,7 @@ type RedrawParams = {
   canvas: HTMLCanvasElement;
 };
 
-export function reDraw({
-  cameraX,
-  cameraY,
-  canvas,
-  layers,
-}: RedrawParams) {
+export function reDraw({ cameraX, cameraY, canvas, layers }: RedrawParams) {
   // const rc = rough.canvas(canvas);
   const ctx = canvas.getContext("2d");
   if (!ctx) return;
@@ -97,10 +89,21 @@ export function reDraw({
   ctx.translate(cameraX, cameraY);
 
   layers.forEach((layer) => {
-    if (layer.isActive) {      
+    if (layer.isActive) {
       // Draw selection rectangle
       draw({
-        layer,
+        layer: {
+          id: crypto.randomUUID(),
+          x: layer.x - 10,
+          y: layer.y - 10,
+          width: layer.width + 20,
+          height: layer.height + 20,
+          stroke: "#605e87",
+          fill: layer.fill,
+          points: null,
+          type: LayerType.Rectangle,
+          isActive: false
+        },
         canvas,
       });
 
@@ -139,8 +142,20 @@ export function reDraw({
       //   canvas,
       // });
       if (layer.type !== LayerType.Path) {
+        // Draw resizing handler
         draw({
-          layer,
+          layer: {
+            id: crypto.randomUUID(),
+            x: layer.x + layer.width + 5,
+            y: layer.y + layer.height + 5,
+            width: 10,
+            height: 10,
+            stroke: "#605e87",
+            fill: layer.fill,
+            points: null,
+            type: LayerType.Ellipse,
+            isActive: false,
+          },
           canvas,
         });
       }
