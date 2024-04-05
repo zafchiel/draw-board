@@ -13,7 +13,6 @@ export function draw({ layer, canvas }: DrawParams) {
   const ctx = canvas.getContext("2d");
   if (!ctx) return;
   ctx.font = "18px system-ui";
-  // ctx.textAlign = 'center';
   ctx.textBaseline = "middle";
   ctx.fillStyle = stroke;
 
@@ -81,7 +80,6 @@ type RedrawParams = {
 };
 
 export function reDraw({ cameraX, cameraY, canvas, layers, stroke }: RedrawParams) {
-  // const rc = rough.canvas(canvas);
   const ctx = canvas.getContext("2d");
   if (!ctx) return;
 
@@ -173,5 +171,4 @@ export function reDraw({ cameraX, cameraY, canvas, layers, stroke }: RedrawParam
   });
 
   ctx.restore();
-  // ctx.setTransform(1, 0, 0, 1, 0, 0);
 }

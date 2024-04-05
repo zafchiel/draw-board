@@ -415,10 +415,6 @@ export function Canvas() {
       canvasState.mode === CanvasMode.Inserting &&
       canvasState.selectedLayerType === LayerType.Text
     ) {
-      // setCanvasState({
-      //   ...canvasState,
-      //   mode: CanvasMode.None,
-      // })
       return;
     }
 
