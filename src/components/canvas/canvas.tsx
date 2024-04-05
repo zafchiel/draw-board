@@ -8,19 +8,20 @@ import {
   useTheme,
 } from "@/lib/utils";
 import { CanvasStateContext } from "@/providers/canvas-state-provider";
-import { useContext, useEffect, useRef, useState } from "react";
+import { useCallback, useContext, useEffect, useRef, useState } from "react";
 import { TextArea } from "./text-area";
 
 export function Canvas() {
   const { canvasState, setCanvasState, layers, setLayers } =
     useContext(CanvasStateContext);
+
   const [pathPoints, setPathPoints] = useState<[number, number][] | null>(null);
   const [isDrawingPath, setIsDrawingPath] = useState(false);
   const [resizingCorner, setResizingCorner] = useState<string | null>(null);
 
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const tempCanvasRef = useRef<HTMLCanvasElement>(null);
-  
+
   const { theme } = useTheme();
 
   // Paint canvas
@@ -31,7 +32,7 @@ export function Canvas() {
       cameraY: canvasState.cameraY,
       canvas: canvasRef.current,
       layers,
-      stroke: canvasState.currentStrokeColor
+      stroke: canvasState.currentStrokeColor,
     });
   }, [
     layers,
@@ -57,15 +58,8 @@ export function Canvas() {
     }
   }, [theme, canvasState, setCanvasState]);
 
-  const onPointerDown = (event: React.MouseEvent) => {
-    event.preventDefault();
-    const canvas = canvasRef.current;
-    if (!canvas) return;
-
-    const currentX = event.pageX;
-    const currentY = event.pageY;
-
-    if (canvasState.mode === CanvasMode.Pencil) {
+  const startDrawingPencil = useCallback(
+    (currentX: number, currentY: number) => {
       setCanvasState({
         ...canvasState,
         originX: currentX,
@@ -75,6 +69,7 @@ export function Canvas() {
       setIsDrawingPath(true);
       const tempCanvas = tempCanvasRef.current;
       if (!tempCanvas) return;
+
       const tempCanvasCtx = tempCanvas.getContext("2d");
       if (!tempCanvasCtx) return;
 
@@ -85,25 +80,43 @@ export function Canvas() {
       tempCanvasCtx.strokeStyle = theme === "light" ? "black" : "white";
       tempCanvasCtx.lineWidth = 1;
       tempCanvasCtx.beginPath();
-      return;
-    }
+    },
+    [canvasState, setCanvasState, theme]
+  );
 
-    // Activate panning mode
-    if (
-      canvasState.mode === CanvasMode.None &&
-      canvasState.selectedLayerType === null
-    ) {
+  const startPanningMode = useCallback(
+    (currentX: number, currentY: number) => {
       setCanvasState({
         ...canvasState,
         mode: CanvasMode.Panning,
         originX: currentX,
         originY: currentY,
       });
-      return;
-    }
+    },
+    [canvasState, setCanvasState]
+  );
 
+  const onPointerDown = (event: React.MouseEvent) => {
+    event.preventDefault();
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+
+    const currentX = event.pageX;
+    const currentY = event.pageY;
+
+    // Start drawing path
+    if (canvasState.mode === CanvasMode.Pencil) {
+      startDrawingPencil(currentX, currentY);
+    }
+    // Activate panning mode
+    else if (
+      canvasState.mode === CanvasMode.None &&
+      canvasState.selectedLayerType === null
+    ) {
+      startPanningMode(currentX, currentY);
+    }
     // Select one layer
-    if (canvasState.mode === CanvasMode.Selecting) {
+    else if (canvasState.mode === CanvasMode.Selecting) {
       const selectedLayerIndex = layers.findLastIndex((layer) =>
         isPointInLayer(
           currentX - canvasState.cameraX,
@@ -134,7 +147,7 @@ export function Canvas() {
           return;
         }
 
-        // Move layer
+        // If not over resize handler move layer
         setCanvasState({
           ...canvasState,
           mode: CanvasMode.Moving,
@@ -160,6 +173,7 @@ export function Canvas() {
           })
         );
       } else {
+        // Delete selection if clicked on nothing
         setCanvasState({
           ...canvasState,
           currentLayer: null,
@@ -173,15 +187,6 @@ export function Canvas() {
           })
         );
       }
-    } 
-    // New text
-    else if (canvasState.selectedLayerType === LayerType.Text && canvasState.mode === CanvasMode.None) {
-      setCanvasState({
-        ...canvasState,
-        mode: CanvasMode.Inserting,
-        originX: currentX,
-        originY: currentY,
-      }) 
     }
     // Activate inserting new layer mode
     else if (canvasState.selectedLayerType !== null) {
@@ -194,32 +199,19 @@ export function Canvas() {
     }
   };
 
-  const onPointerMove = (event: React.PointerEvent) => {
-    if (canvasState.mode === CanvasMode.Resizing && resizingCorner !== null) {
+  const handleResizing = useCallback(
+    (currentX: number, currentY: number, corner: string) => {
       // Resize the layer
-      const currentX = event.pageX;
-      const currentY = event.pageY;
       const selectedLayer = canvasState.currentLayer;
       if (!selectedLayer) return;
 
-      // const tempCanvas = tempCanvasRef.current;
-      // if (!tempCanvas) return;
-      // const tempCanvasCtx = tempCanvas.getContext("2d");
-      // if (!tempCanvasCtx) return;
-
-      // tempCanvasCtx.clearRect(0, 0, tempCanvas.width, tempCanvas.height); // Clear the temporary canvas
-
-      // const moveX = currentX - canvasState.originX;
-      // const moveY = currentY - canvasState.originY;
-
       const newBounds = resizeBounds(
         selectedLayer,
-        resizingCorner,
+        corner,
         currentX - canvasState.cameraX,
         currentY - canvasState.cameraY
       );
-      // console.log(newBounds)
-      // console.log(moveX, moveY)
+
       setLayers(
         layers.map((layer) => {
           if (layer.id === selectedLayer.id) {
@@ -241,11 +233,12 @@ export function Canvas() {
         originX: currentX,
         originY: currentY,
       });
-    }
+    },
+    [canvasState, layers, setCanvasState, setLayers]
+  );
 
-    if (canvasState.mode === CanvasMode.Moving) {
-      const moveX = event.pageX - canvasState.originX;
-      const moveY = event.pageY - canvasState.originY;
+  const handleMoveLayer = useCallback(
+    (currentX: number, currentY: number, moveX: number, moveY: number) => {
       const selectedLayerId = canvasState.currentLayer?.id;
 
       if (!selectedLayerId) return;
@@ -277,40 +270,47 @@ export function Canvas() {
       );
       setCanvasState({
         ...canvasState,
-        originX: event.pageX,
-        originY: event.pageY,
+        originX: currentX,
+        originY: currentY,
       });
-    }
+    },
+    [canvasState, layers, setCanvasState, setLayers]
+  );
 
-    if (isDrawingPath) {
+  const handleDrawingPath = useCallback(
+    (currentX: number, currentY: number) => {
       const tempCanvasCtx = tempCanvasRef.current?.getContext("2d");
       if (!tempCanvasCtx) return;
-      setPathPoints((state) => [...state!, [event.pageX, event.pageY]]);
-      tempCanvasCtx.lineTo(event.pageX, event.pageY);
+      setPathPoints((state) => [...state!, [currentX, currentY]]);
+      tempCanvasCtx.lineTo(currentX, currentY);
       tempCanvasCtx.stroke();
-      return;
-    }
+    },
+    []
+  );
 
-    // Panning the canvas
-    if (canvasState.mode === CanvasMode.Panning) {
-      const moveX = event.pageX - canvasState.originX;
-      const moveY = event.pageY - canvasState.originY;
+  const handlePanningCanvas = useCallback(
+    (currentX: number, currentY: number, moveX: number, moveY: number) => {
       setCanvasState((prevCanvasState) => {
         return {
           ...prevCanvasState,
           cameraX: prevCanvasState.cameraX + moveX,
           cameraY: prevCanvasState.cameraY + moveY,
-          originX: event.pageX, // Update the origin to the current pointer position
-          originY: event.pageY, // Update the origin to the current pointer position
+          originX: currentX, // Update the origin to the current pointer position
+          originY: currentY, // Update the origin to the current pointer position
         };
       });
-    }
+    },
+    [setCanvasState]
+  );
 
-    // Drawing the preview layer
-    if (
-      canvasState.mode === CanvasMode.Inserting &&
-      canvasState.selectedLayerType !== null && canvasState.selectedLayerType !== LayerType.Text
-    ) {
+  const handleDrawingPreviewLayer = useCallback(
+    (
+      originX: number,
+      originY: number,
+      moxeX: number,
+      moveY: number,
+      selectedLayerType: LayerType
+    ) => {
       const tempCanvas = tempCanvasRef.current;
       if (!tempCanvas) return;
 
@@ -319,24 +319,61 @@ export function Canvas() {
 
       ctx.clearRect(0, 0, tempCanvas.width, tempCanvas.height); // Clear the temporary canvas
 
-      const width = event.pageX - canvasState.originX;
-      const height = event.pageY - canvasState.originY;
-
       draw({
         layer: {
-          x: canvasState.originX,
-          y: canvasState.originY,
-          width,
-          height,
+          x: originX,
+          y: originY,
+          width: moxeX,
+          height: moveY,
           stroke: theme === "light" ? "black" : "white",
           fill: "transparent",
           points: null,
-          type: canvasState.selectedLayerType,
+          type: selectedLayerType,
           id: crypto.randomUUID(),
           isActive: false,
         },
         canvas: tempCanvas,
       });
+    },
+    [theme]
+  );
+
+  const onPointerMove = (event: React.PointerEvent) => {
+    const currentX = event.pageX;
+    const currentY = event.pageY;
+
+    const moveX = event.pageX - canvasState.originX;
+    const moveY = event.pageY - canvasState.originY;
+
+    // Resizing layer
+    if (canvasState.mode === CanvasMode.Resizing && resizingCorner !== null) {
+      handleResizing(currentX, currentY, resizingCorner);
+    } 
+    // Moving one layer
+    else if (canvasState.mode === CanvasMode.Moving) {
+      handleMoveLayer(currentX, currentY, moveX, moveY);
+    } 
+    // Drawing pencil path
+    else if (isDrawingPath) {
+      handleDrawingPath(currentX, currentY);
+    }
+    // Panning the canvas
+    else if (canvasState.mode === CanvasMode.Panning) {
+      handlePanningCanvas(currentX, currentY, moveX, moveY);
+    }
+    // Drawing the preview layer
+    else if (
+      canvasState.mode === CanvasMode.Inserting &&
+      canvasState.selectedLayerType !== null &&
+      canvasState.selectedLayerType !== LayerType.Text
+    ) {
+      handleDrawingPreviewLayer(
+        canvasState.originX,
+        canvasState.originY,
+        moveX,
+        moveY,
+        canvasState.selectedLayerType
+      );
     }
   };
 
@@ -349,7 +386,10 @@ export function Canvas() {
     const tempCtx = tempCanvas.getContext("2d");
     if (!ctx || !tempCtx) return;
 
-    if (canvasState.mode === CanvasMode.Inserting && canvasState.selectedLayerType === LayerType.Text) {
+    if (
+      canvasState.mode === CanvasMode.Inserting &&
+      canvasState.selectedLayerType === LayerType.Text
+    ) {
       // setCanvasState({
       //   ...canvasState,
       //   mode: CanvasMode.None,
@@ -470,7 +510,14 @@ export function Canvas() {
         style={{ position: "absolute", top: 0, left: 0, pointerEvents: "none" }}
       />
 
-      <TextArea left={canvasState.originX} top={canvasState.originY} visible={canvasState.mode === CanvasMode.Inserting && canvasState.selectedLayerType === LayerType.Text} />
+      <TextArea
+        left={canvasState.originX}
+        top={canvasState.originY}
+        visible={
+          canvasState.mode === CanvasMode.Inserting &&
+          canvasState.selectedLayerType === LayerType.Text
+        }
+      />
     </>
   );
 }
