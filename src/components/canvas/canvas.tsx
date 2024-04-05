@@ -96,108 +96,118 @@ export function Canvas() {
     [canvasState, setCanvasState]
   );
 
-  const onPointerDown = (event: React.MouseEvent) => {
-    event.preventDefault();
-    const canvas = canvasRef.current;
-    if (!canvas) return;
+  const onPointerDown = useCallback(
+    (event: React.MouseEvent) => {
+      event.preventDefault();
+      const canvas = canvasRef.current;
+      if (!canvas) return;
 
-    const currentX = event.pageX;
-    const currentY = event.pageY;
+      const currentX = event.pageX;
+      const currentY = event.pageY;
 
-    // Start drawing path
-    if (canvasState.mode === CanvasMode.Pencil) {
-      startDrawingPencil(currentX, currentY);
-    }
-    // Activate panning mode
-    else if (
-      canvasState.mode === CanvasMode.None &&
-      canvasState.selectedLayerType === null
-    ) {
-      startPanningMode(currentX, currentY);
-    }
-    // Select one layer
-    else if (canvasState.mode === CanvasMode.Selecting) {
-      const selectedLayerIndex = layers.findLastIndex((layer) =>
-        isPointInLayer(
-          currentX - canvasState.cameraX,
-          currentY - canvasState.cameraY,
-          layer
-        )
-      );
-      if (selectedLayerIndex !== -1) {
-        // Check if mouse is over resizing handlers
-        const selectedLayer = layers[selectedLayerIndex];
-        const clickedCorner = checkIfMouseOverResizeHandlers(
-          currentX - canvasState.cameraX,
-          currentY - canvasState.cameraY,
-          selectedLayer
+      // Start drawing path
+      if (canvasState.mode === CanvasMode.Pencil) {
+        startDrawingPencil(currentX, currentY);
+      }
+      // Activate panning mode
+      else if (
+        canvasState.mode === CanvasMode.None &&
+        canvasState.selectedLayerType === null
+      ) {
+        startPanningMode(currentX, currentY);
+      }
+      // Select one layer
+      else if (canvasState.mode === CanvasMode.Selecting) {
+        const selectedLayerIndex = layers.findLastIndex((layer) =>
+          isPointInLayer(
+            currentX - canvasState.cameraX,
+            currentY - canvasState.cameraY,
+            layer
+          )
         );
-        if (
-          clickedCorner === "bottomRight" &&
-          canvasState.selectedLayerType !== LayerType.Path
-        ) {
+        if (selectedLayerIndex !== -1) {
+          // Check if mouse is over resizing handlers
+          const selectedLayer = layers[selectedLayerIndex];
+          const clickedCorner = checkIfMouseOverResizeHandlers(
+            currentX - canvasState.cameraX,
+            currentY - canvasState.cameraY,
+            selectedLayer
+          );
+          if (
+            clickedCorner === "bottomRight" &&
+            canvasState.selectedLayerType !== LayerType.Path
+          ) {
+            setCanvasState({
+              ...canvasState,
+              mode: CanvasMode.Resizing,
+              currentLayer: selectedLayer,
+              originX: currentX,
+              originY: currentY,
+            });
+            setResizingCorner(clickedCorner);
+            return;
+          }
+
+          // If not over resize handler move layer
           setCanvasState({
             ...canvasState,
-            mode: CanvasMode.Resizing,
+            mode: CanvasMode.Moving,
             currentLayer: selectedLayer,
             originX: currentX,
             originY: currentY,
           });
-          setResizingCorner(clickedCorner);
-          return;
-        }
 
-        // If not over resize handler move layer
-        setCanvasState({
-          ...canvasState,
-          mode: CanvasMode.Moving,
-          currentLayer: selectedLayer,
-          originX: currentX,
-          originY: currentY,
-        });
-
-        // Repaint active layer
-        setLayers(
-          layers.map((layer, index) => {
-            if (index === selectedLayerIndex) {
-              return {
-                ...layer,
-                isActive: true,
-              };
-            } else {
+          // Repaint active layer
+          setLayers(
+            layers.map((layer, index) => {
+              if (index === selectedLayerIndex) {
+                return {
+                  ...layer,
+                  isActive: true,
+                };
+              } else {
+                return {
+                  ...layer,
+                  isActive: false,
+                };
+              }
+            })
+          );
+        } else {
+          // Delete selection if clicked on nothing
+          setCanvasState({
+            ...canvasState,
+            currentLayer: null,
+          });
+          setLayers(
+            layers.map((layer) => {
               return {
                 ...layer,
                 isActive: false,
               };
-            }
-          })
-        );
-      } else {
-        // Delete selection if clicked on nothing
+            })
+          );
+        }
+      }
+      // Activate inserting new layer mode
+      else if (canvasState.selectedLayerType !== null) {
         setCanvasState({
           ...canvasState,
-          currentLayer: null,
+          mode: CanvasMode.Inserting,
+          originX: currentX,
+          originY: currentY,
         });
-        setLayers(
-          layers.map((layer) => {
-            return {
-              ...layer,
-              isActive: false,
-            };
-          })
-        );
       }
-    }
-    // Activate inserting new layer mode
-    else if (canvasState.selectedLayerType !== null) {
-      setCanvasState({
-        ...canvasState,
-        mode: CanvasMode.Inserting,
-        originX: currentX,
-        originY: currentY,
-      });
-    }
-  };
+    },
+    [
+      canvasState,
+      layers,
+      setCanvasState,
+      setLayers,
+      startDrawingPencil,
+      startPanningMode,
+    ]
+  );
 
   const handleResizing = useCallback(
     (currentX: number, currentY: number, corner: string) => {
@@ -338,44 +348,59 @@ export function Canvas() {
     [theme]
   );
 
-  const onPointerMove = (event: React.PointerEvent) => {
-    const currentX = event.pageX;
-    const currentY = event.pageY;
+  const onPointerMove = useCallback(
+    (event: React.PointerEvent) => {
+      const currentX = event.pageX;
+      const currentY = event.pageY;
 
-    const moveX = event.pageX - canvasState.originX;
-    const moveY = event.pageY - canvasState.originY;
+      const moveX = event.pageX - canvasState.originX;
+      const moveY = event.pageY - canvasState.originY;
 
-    // Resizing layer
-    if (canvasState.mode === CanvasMode.Resizing && resizingCorner !== null) {
-      handleResizing(currentX, currentY, resizingCorner);
-    } 
-    // Moving one layer
-    else if (canvasState.mode === CanvasMode.Moving) {
-      handleMoveLayer(currentX, currentY, moveX, moveY);
-    } 
-    // Drawing pencil path
-    else if (isDrawingPath) {
-      handleDrawingPath(currentX, currentY);
-    }
-    // Panning the canvas
-    else if (canvasState.mode === CanvasMode.Panning) {
-      handlePanningCanvas(currentX, currentY, moveX, moveY);
-    }
-    // Drawing the preview layer
-    else if (
-      canvasState.mode === CanvasMode.Inserting &&
-      canvasState.selectedLayerType !== null &&
-      canvasState.selectedLayerType !== LayerType.Text
-    ) {
-      handleDrawingPreviewLayer(
-        canvasState.originX,
-        canvasState.originY,
-        moveX,
-        moveY,
-        canvasState.selectedLayerType
-      );
-    }
-  };
+      // Resizing layer
+      if (canvasState.mode === CanvasMode.Resizing && resizingCorner !== null) {
+        handleResizing(currentX, currentY, resizingCorner);
+      }
+      // Moving one layer
+      else if (canvasState.mode === CanvasMode.Moving) {
+        handleMoveLayer(currentX, currentY, moveX, moveY);
+      }
+      // Drawing pencil path
+      else if (isDrawingPath) {
+        handleDrawingPath(currentX, currentY);
+      }
+      // Panning the canvas
+      else if (canvasState.mode === CanvasMode.Panning) {
+        handlePanningCanvas(currentX, currentY, moveX, moveY);
+      }
+      // Drawing the preview layer
+      else if (
+        canvasState.mode === CanvasMode.Inserting &&
+        canvasState.selectedLayerType !== null &&
+        canvasState.selectedLayerType !== LayerType.Text
+      ) {
+        handleDrawingPreviewLayer(
+          canvasState.originX,
+          canvasState.originY,
+          moveX,
+          moveY,
+          canvasState.selectedLayerType
+        );
+      }
+    },
+    [
+      canvasState.mode,
+      canvasState.originX,
+      canvasState.originY,
+      canvasState.selectedLayerType,
+      handleDrawingPath,
+      handleDrawingPreviewLayer,
+      handleMoveLayer,
+      handlePanningCanvas,
+      handleResizing,
+      isDrawingPath,
+      resizingCorner,
+    ]
+  );
 
   const onPointerUp = (event: React.PointerEvent) => {
     const canvas = canvasRef.current;
