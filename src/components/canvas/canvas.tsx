@@ -10,6 +10,7 @@ import {
 import { CanvasStateContext } from "@/providers/canvas-state-provider";
 import { useCallback, useContext, useEffect, useRef, useState } from "react";
 import { TextArea } from "./text-area";
+import { nanoid } from "nanoid/non-secure";
 
 export function Canvas() {
   const { canvasState, setCanvasState, layers, setLayers } =
@@ -339,7 +340,7 @@ export function Canvas() {
           fill: "transparent",
           points: null,
           type: selectedLayerType,
-          id: crypto.randomUUID(),
+          id: nanoid(),
           isActive: false,
         },
         canvas: tempCanvas,
@@ -461,7 +462,7 @@ export function Canvas() {
       setLayers([
         ...layers,
         {
-          id: crypto.randomUUID(),
+          id: nanoid(),
           type: canvasState.selectedLayerType,
           fill: canvasState.currentFillColor,
           stroke: canvasState.currentStrokeColor,
@@ -482,7 +483,7 @@ export function Canvas() {
       setLayers([
         ...layers,
         {
-          id: crypto.randomUUID(),
+          id: nanoid(),
           type: canvasState.selectedLayerType,
           fill: canvasState.currentFillColor,
           stroke: canvasState.currentStrokeColor,

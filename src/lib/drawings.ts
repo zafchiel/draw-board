@@ -1,5 +1,6 @@
 import { LayerType, type Layer } from "./types";
 import rough from "roughjs";
+import { nanoid } from "nanoid/non-secure";
 
 type DrawParams = {
   layer: Layer;
@@ -79,7 +80,13 @@ type RedrawParams = {
   stroke: string;
 };
 
-export function reDraw({ cameraX, cameraY, canvas, layers, stroke }: RedrawParams) {
+export function reDraw({
+  cameraX,
+  cameraY,
+  canvas,
+  layers,
+  stroke,
+}: RedrawParams) {
   const ctx = canvas.getContext("2d");
   if (!ctx) return;
 
@@ -92,7 +99,7 @@ export function reDraw({ cameraX, cameraY, canvas, layers, stroke }: RedrawParam
       // Draw selection rectangle
       draw({
         layer: {
-          id: crypto.randomUUID(),
+          id: nanoid(),
           x: layer.x - 10,
           y: layer.y - 10,
           width: layer.width + 20,
@@ -101,7 +108,7 @@ export function reDraw({ cameraX, cameraY, canvas, layers, stroke }: RedrawParam
           fill: "transparent",
           points: null,
           type: LayerType.Rectangle,
-          isActive: false
+          isActive: false,
         },
         canvas,
       });
@@ -144,7 +151,7 @@ export function reDraw({ cameraX, cameraY, canvas, layers, stroke }: RedrawParam
         // Draw resizing handler
         draw({
           layer: {
-            id: crypto.randomUUID(),
+            id: nanoid(),
             x: layer.x + layer.width + 5,
             y: layer.y + layer.height + 5,
             width: 10,
@@ -164,7 +171,7 @@ export function reDraw({ cameraX, cameraY, canvas, layers, stroke }: RedrawParam
     draw({
       layer: {
         ...layer,
-        stroke
+        stroke,
       },
       canvas,
     });

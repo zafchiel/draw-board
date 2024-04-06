@@ -1,6 +1,7 @@
 import { LayerType } from "@/lib/types";
 import { CanvasStateContext } from "@/providers/canvas-state-provider";
 import { useContext, useEffect, useRef, useState } from "react";
+import { nanoid } from "nanoid/non-secure";
 
 type TextAreaProps = {
   top: number;
@@ -22,7 +23,7 @@ export const TextArea = (props: TextAreaProps) => {
       setLayers([
         ...layers,
         {
-          id: crypto.randomUUID(),
+          id: nanoid(),
           type: LayerType.Text,
           x: props.left - canvasState.cameraX,
           y: props.top - canvasState.cameraY,
